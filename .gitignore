@@ -1,0 +1,22 @@
+﻿# Local dev / build
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+ENV/
+.env
+build/
+dist/
+
+# Installer output
+installer/inno/Output/
+
+# Wheels
+*.whl
+
+# Logs
+*.log
+
+# Editor
+.vscode/
+.idea/

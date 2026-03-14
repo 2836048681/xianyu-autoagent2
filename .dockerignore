@@ -1,0 +1,19 @@
+.git
+.github
+.gitignore
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*_prompt.txt
+.env
+.DS_Store
+.vscode/
+*.log
+data/
+images/
+backups/
+Dockerfile
+docker-compose.yml
+.dockerignore
+# README.md 

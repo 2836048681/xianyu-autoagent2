@@ -1,0 +1,31 @@
+﻿param(
+    [string]$PythonExe = "python"
+)
+
+Set-Location -Path $PSScriptRoot
+
+$cmd = @(
+    $PythonExe,
+    "-m",
+    "PyInstaller",
+    "--onefile",
+    "--noconsole",
+    "--name",
+    "v1",
+    "--add-data",
+    "prompts;prompts",
+    "--add-data",
+    "chrome;chrome",
+    "--add-data",
+    "chromedriver;chromedriver",
+    "--hidden-import",
+    "tkinter",
+    "--hidden-import",
+    "tkinter.ttk",
+    "--hidden-import",
+    "selenium",
+    "gui_app.py"
+)
+
+Write-Host "Running: $($cmd -join ' ')"
+& $cmd[0] $cmd[1..($cmd.Length-1)]
