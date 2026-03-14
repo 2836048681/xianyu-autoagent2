@@ -169,6 +169,11 @@ class XianyuApis:
                         logger.error(f"❌ 触发风控: {ret_value}")
                         logger.error("🔴 系统目前无法自动解决，请进入闲鱼网页版-点击消息-过滑块-复制最新的Cookie")
                         
+                        # 非交互模式下直接退出，避免在GUI子进程中重复提示
+                        if os.getenv("NON_INTERACTIVE", "").lower() in ("1", "true", "yes"):
+                            logger.error("🔴 非交互模式无法输入Cookie，请通过GUI扫码更新后重启")
+                            sys.exit(1)
+
                         # 获取用户输入的新Cookie
                         print("\n" + "="*50)
                         new_cookie_str = input("请输入新的Cookie字符串 (复制浏览器中的完整cookie，直接回车则退出程序): ").strip()

@@ -181,6 +181,12 @@ class App:
                 return
 
             self.save_env()
+            env = os.environ.copy()
+            # Force UTF-8 output and disable interactive prompts in child process.
+            env["PYTHONIOENCODING"] = "utf-8"
+            env["PYTHONUTF8"] = "1"
+            env["PYTHONUNBUFFERED"] = "1"
+            env["NON_INTERACTIVE"] = "1"
             if getattr(sys, "frozen", False):
                 cmd = [sys.executable, "--run-service"]
                 cwd = self.app_dir
@@ -191,6 +197,7 @@ class App:
             self.proc = subprocess.Popen(
                 cmd,
                 cwd=cwd,
+                env=env,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 text=True,
