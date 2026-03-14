@@ -24,6 +24,8 @@ $cmd = @(
     "tkinter.ttk",
     "--hidden-import",
     "selenium",
+    "--collect-all",
+    "selenium",
     "gui_app.py"
 )
 

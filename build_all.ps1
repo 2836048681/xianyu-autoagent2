@@ -13,7 +13,7 @@ if (-not (Test-Path $InnoExe)) {
 }
 
 Write-Host "Step 1/2: Build v1.exe via PyInstaller"
-& $PythonExe -m PyInstaller --onefile --noconsole --name v1 --add-data "prompts;prompts" --add-data "chrome;chrome" --add-data "chromedriver;chromedriver" --hidden-import tkinter --hidden-import tkinter.ttk --hidden-import selenium gui_app.py
+& $PythonExe -m PyInstaller --onefile --noconsole --name v1 --add-data "prompts;prompts" --add-data "chrome;chrome" --add-data "chromedriver;chromedriver" --hidden-import tkinter --hidden-import tkinter.ttk --hidden-import selenium --collect-all selenium gui_app.py
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 Write-Host "Step 2/2: Build installer via Inno Setup"

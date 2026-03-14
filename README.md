@@ -1,4 +1,6 @@
-# Xianyu AutoAgent - 闲鱼智能客服机器人系统
+# Xianyu AutoAgent 2.0 - 闲鱼智能客服机器人系统
+
+本项目基于 https://github.com/shaxiu/XianyuAutoAgent 改版。
 
 [![Python Version](https://img.shields.io/badge/python-3.8%2B-blue)](https://www.python.org/) [![LLM Powered](https://img.shields.io/badge/LLM-powered-FF6F61)](https://platform.openai.com/)
 
