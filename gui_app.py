@@ -25,6 +25,13 @@ from utils.selenium_login import fetch_cookies_via_selenium
 
 
 class App:
+    LOG_FORMAT = (
+        "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | "
+        "<level>{level: <8}</level> | "
+        "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - "
+        "<level>{message}</level>"
+    )
+
     def __init__(self, root: tk.Tk):
         self.root = root
         self.root.title("Xianyu AutoAgent 2.0")
@@ -121,7 +128,15 @@ class App:
                     self.q.put(msg)
             def flush(self):
                 return
-        logger.add(TkLogSink(self.log_queue), level="DEBUG")
+        log_level = os.getenv("LOG_LEVEL", "DEBUG").upper()
+        logger.remove()
+        logger.add(
+            TkLogSink(self.log_queue),
+            level=log_level,
+            format=self.LOG_FORMAT,
+            colorize=False,
+        )
+        logger.info(f"日志级别设置为: {log_level}")
         self._drain_log_queue()
 
     def _drain_log_queue(self):
@@ -130,7 +145,7 @@ class App:
                 msg = self.log_queue.get_nowait()
             except queue.Empty:
                 break
-            self.log(msg)
+            self._append_log_line(msg)
         self.root.after(200, self._drain_log_queue)
 
     def _build_ui(self):
@@ -306,9 +321,8 @@ class App:
         self.cookies_text.delete("1.0", tk.END)
         self.cookies_text.insert("1.0", env.get("COOKIES_STR", ""))
 
-    def log(self, msg: str):
-        ts = time.strftime("%H:%M:%S")
-        self.log_text.insert(tk.END, f"[{ts}] {msg}\n")
+    def _append_log_line(self, msg: str):
+        self.log_text.insert(tk.END, f"{msg}\n")
         self.log_text.see(tk.END)
 
     def save_env(self):
@@ -319,29 +333,29 @@ class App:
             "COOKIES_STR": self.cookies_text.get("1.0", tk.END).strip(),
         }
         update_env_file(values, self.env_path)
-        self.log("配置已保存")
+        logger.info("配置已保存")
         messagebox.showinfo("保存成功", "配置已保存到 .env")
 
     def start_login(self):
         self.save_env()
-        self.log("启动扫码登录流程，等待浏览器打开...")
+        logger.info("启动扫码登录流程，等待浏览器打开...")
 
         def run_login():
             try:
                 cookie_str = fetch_cookies_via_selenium(fresh_profile=True)
                 if not cookie_str:
                     self._ui(lambda: messagebox.showwarning("登录失败", "未获取到 Cookie"))
-                    self._ui(lambda: self.log("扫码登录失败或未完成"))
+                    self._ui(lambda: logger.warning("扫码登录失败或未完成"))
                     return
                 update_env_file({"COOKIES_STR": cookie_str}, self.env_path)
                 self._ui(lambda: self.cookies_text.delete("1.0", tk.END))
                 self._ui(lambda: self.cookies_text.insert("1.0", cookie_str))
-                self._ui(lambda: self.log("Cookie 已更新"))
+                self._ui(lambda: logger.info("Cookie 已更新"))
                 self._ui(lambda: messagebox.showinfo("成功", "Cookie 已更新，服务将重启生效"))
                 self._ui(self.restart_service)
             except Exception as e:
                 err = "".join(traceback.format_exception_only(type(e), e)).strip()
-                self._ui(lambda: self.log(f"扫码登录失败: {err}"))
+                self._ui(lambda: logger.error(f"扫码登录失败: {err}"))
                 self._ui(lambda: messagebox.showerror("登录失败", err))
 
         threading.Thread(target=run_login, daemon=True).start()
@@ -373,12 +387,12 @@ class App:
         for line in self.proc.stdout:
             line = line.rstrip("\r\n")
             if line:
-                self._ui(lambda l=line: self.log(l))
+                self._ui(lambda l=line: self._append_log_line(l))
 
     def start_service(self):
         with self.proc_lock:
             if self.proc and self.proc.poll() is None:
-                self.log("服务已在运行")
+                logger.info("服务已在运行")
                 return
 
             self.save_env()
@@ -406,12 +420,12 @@ class App:
             )
             threading.Thread(target=self._stream_process_output, daemon=True).start()
             self.status_var.set("状态：运行中")
-            self.log("服务已启动")
+            logger.info("服务已启动")
 
     def stop_service(self):
         with self.proc_lock:
             if not self.proc or self.proc.poll() is not None:
-                self.log("服务未运行")
+                logger.info("服务未运行")
                 return
             self.proc.terminate()
             try:
@@ -419,7 +433,7 @@ class App:
             except subprocess.TimeoutExpired:
                 self.proc.kill()
             self.status_var.set("状态：已停止")
-            self.log("服务已停止")
+            logger.info("服务已停止")
 
     def restart_service(self):
         self.stop_service()
