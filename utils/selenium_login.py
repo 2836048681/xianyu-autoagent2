@@ -1,6 +1,8 @@
 import os
 import sys
 import time
+import shutil
+import tempfile
 from typing import Optional
 
 from selenium import webdriver
@@ -34,7 +36,7 @@ def _resolve_runtime_paths() -> tuple[str, str]:
     return chrome_path, driver_path
 
 
-def fetch_cookies_via_selenium(timeout_seconds: int = 180) -> Optional[str]:
+def fetch_cookies_via_selenium(timeout_seconds: int = 180, fresh_profile: bool = True) -> Optional[str]:
     chrome_path, driver_path = _resolve_runtime_paths()
     if not os.path.exists(chrome_path):
         raise FileNotFoundError(f"未找到离线 Chrome: {chrome_path}")
@@ -47,7 +49,13 @@ def fetch_cookies_via_selenium(timeout_seconds: int = 180) -> Optional[str]:
     options.add_argument("--start-maximized")
     options.add_argument("--no-first-run")
     options.add_argument("--no-default-browser-check")
-    options.add_argument(f"--user-data-dir={os.path.join(get_user_data_dir(), 'chrome_profile')}")
+    profile_dir = None
+    if fresh_profile:
+        profile_dir = tempfile.mkdtemp(prefix="chrome_profile_", dir=get_user_data_dir())
+    else:
+        profile_dir = os.path.join(get_user_data_dir(), "chrome_profile")
+        os.makedirs(profile_dir, exist_ok=True)
+    options.add_argument(f"--user-data-dir={profile_dir}")
 
     service = Service(executable_path=driver_path)
     driver = webdriver.Chrome(service=service, options=options)
@@ -64,3 +72,8 @@ def fetch_cookies_via_selenium(timeout_seconds: int = 180) -> Optional[str]:
         return None
     finally:
         driver.quit()
+        if fresh_profile and profile_dir:
+            try:
+                shutil.rmtree(profile_dir, ignore_errors=True)
+            except Exception:
+                pass

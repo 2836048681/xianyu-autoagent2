@@ -5,6 +5,7 @@ import subprocess
 import queue
 import time
 import traceback
+import webbrowser
 import tkinter as tk
 from tkinter import ttk, messagebox
 
@@ -17,6 +18,8 @@ from utils.env_utils import (
     get_env_path,
     load_env_file,
     update_env_file,
+    get_prompts_dir,
+    ensure_prompts_dir,
 )
 from utils.selenium_login import fetch_cookies_via_selenium
 
@@ -143,7 +146,7 @@ class App:
 
         subtitle = ttk.Label(
             header,
-            text="离线版智能闲鱼客服 · 扫码登录 · 实时日志",
+            text="智能闲鱼客服 · 扫码登录 · 实时日志",
             style="Subtitle.TLabel",
         )
         subtitle.grid(row=1, column=0, sticky="w", pady=(2, 0))
@@ -157,12 +160,12 @@ class App:
 
         content = ttk.Frame(self.root, padding=(24, 0, 24, 24))
         content.grid(row=1, column=0, sticky="nsew")
-        content.columnconfigure(0, weight=1)
-        content.columnconfigure(1, weight=1)
+        content.columnconfigure(0, weight=3)
+        content.columnconfigure(1, weight=2)
         content.rowconfigure(1, weight=1)
 
         config_card = ttk.Frame(content, style="Card.TFrame", padding=18)
-        config_card.grid(row=0, column=0, sticky="nsew", padx=(0, 12))
+        config_card.grid(row=0, column=0, sticky="nsew", padx=(0, 12), pady=(0, 12))
         config_card.columnconfigure(1, weight=1)
 
         ttk.Label(config_card, text="运行配置", style="CardTitle.TLabel").grid(row=0, column=0, columnspan=2, sticky="w")
@@ -182,8 +185,15 @@ class App:
         self.cookies_text = tk.Text(config_card, height=6, wrap="word", relief="solid", borderwidth=1)
         self.cookies_text.grid(row=4, column=1, sticky="ew", pady=4)
 
+        cookie_hint = ttk.Label(
+            config_card,
+            text="建议通过扫码登录自动更新 Cookie，避免手动复制出错。",
+            style="Subtitle.TLabel",
+        )
+        cookie_hint.grid(row=5, column=0, columnspan=2, sticky="w", pady=(2, 0))
+
         config_actions = ttk.Frame(config_card)
-        config_actions.grid(row=5, column=0, columnspan=2, sticky="e", pady=(10, 0))
+        config_actions.grid(row=6, column=0, columnspan=2, sticky="e", pady=(12, 0))
         ttk.Button(config_actions, text="保存配置", style="Secondary.TButton", command=self.save_env).grid(
             row=0, column=0, padx=(0, 8)
         )
@@ -191,8 +201,13 @@ class App:
             row=0, column=1
         )
 
-        control_card = ttk.Frame(content, style="Card.TFrame", padding=18)
-        control_card.grid(row=0, column=1, sticky="nsew")
+        right_col = ttk.Frame(content, style="TFrame")
+        right_col.grid(row=0, column=1, sticky="nsew")
+        right_col.columnconfigure(0, weight=1)
+        right_col.rowconfigure(1, weight=1)
+
+        control_card = ttk.Frame(right_col, style="Card.TFrame", padding=18)
+        control_card.grid(row=0, column=0, sticky="nsew", pady=(0, 12))
         control_card.columnconfigure(0, weight=1)
 
         ttk.Label(control_card, text="服务控制", style="CardTitle.TLabel").grid(row=0, column=0, sticky="w")
@@ -218,8 +233,41 @@ class App:
             style="Subtitle.TLabel",
         ).grid(row=0, column=0, sticky="w")
 
+        settings_card = ttk.Frame(right_col, style="Card.TFrame", padding=18)
+        settings_card.grid(row=1, column=0, sticky="nsew")
+        settings_card.columnconfigure(0, weight=1)
+        ttk.Label(settings_card, text="设置", style="CardTitle.TLabel").grid(row=0, column=0, sticky="w")
+
+        ttk.Button(
+            settings_card,
+            text="关于软件",
+            style="Secondary.TButton",
+            command=self.show_about,
+        ).grid(row=1, column=0, sticky="ew", pady=(12, 8))
+
+        ttk.Button(
+            settings_card,
+            text="检查更新 (Release)",
+            style="Secondary.TButton",
+            command=self.check_update,
+        ).grid(row=2, column=0, sticky="ew", pady=(0, 8))
+
+        ttk.Button(
+            settings_card,
+            text="修改 prompts（谨慎）",
+            style="Ghost.TButton",
+            command=self.open_prompts_folder,
+        ).grid(row=3, column=0, sticky="ew")
+
+        prompts_tip = ttk.Label(
+            settings_card,
+            text="提示：非专业用户请勿随意修改此选项。",
+            style="Subtitle.TLabel",
+        )
+        prompts_tip.grid(row=4, column=0, sticky="w", pady=(8, 0))
+
         log_card = ttk.Frame(content, style="Card.TFrame", padding=18)
-        log_card.grid(row=1, column=0, columnspan=2, sticky="nsew", pady=(16, 0))
+        log_card.grid(row=1, column=0, columnspan=2, sticky="nsew")
         log_card.rowconfigure(1, weight=1)
         log_card.columnconfigure(0, weight=1)
 
@@ -280,7 +328,7 @@ class App:
 
         def run_login():
             try:
-                cookie_str = fetch_cookies_via_selenium()
+                cookie_str = fetch_cookies_via_selenium(fresh_profile=True)
                 if not cookie_str:
                     self._ui(lambda: messagebox.showwarning("登录失败", "未获取到 Cookie"))
                     self._ui(lambda: self.log("扫码登录失败或未完成"))
@@ -297,6 +345,27 @@ class App:
                 self._ui(lambda: messagebox.showerror("登录失败", err))
 
         threading.Thread(target=run_login, daemon=True).start()
+
+    def show_about(self):
+        messagebox.showinfo(
+            "关于软件",
+            "作者：Rick\n版本：2.0\n项目：Xianyu AutoAgent 2.0",
+        )
+
+    def check_update(self):
+        url = "https://github.com/2836048681/xianyu-autoagent2/releases"
+        try:
+            webbrowser.open(url)
+        except Exception:
+            messagebox.showinfo("检查更新", f"请手动打开：{url}")
+
+    def open_prompts_folder(self):
+        ensure_prompts_dir()
+        path = get_prompts_dir()
+        try:
+            os.startfile(path)
+        except Exception as e:
+            messagebox.showerror("打开失败", str(e))
 
     def _stream_process_output(self):
         if not self.proc or not self.proc.stdout:

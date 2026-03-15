@@ -144,6 +144,10 @@ installer\inno\Output\XianyuAutoAgent_0.1_Setup.exe
 - 用户数据独立存储于 `%APPDATA%\XianyuAutoAgent`
 - 一键构建脚本 `build_exe.ps1` / `build_all.ps1`
 
+## 界面预览
+
+![UI](./images/ui.png)
+
 已知限制：
 - 当前仅提供 Windows 64 位离线包
 - 首次启动需要配置模型 API
