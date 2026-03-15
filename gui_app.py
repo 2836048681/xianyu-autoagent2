@@ -6,6 +6,7 @@ import queue
 import time
 import traceback
 import webbrowser
+import re
 import tkinter as tk
 from tkinter import ttk, messagebox, simpledialog
 
@@ -22,6 +23,7 @@ from utils.env_utils import (
     ensure_prompts_dir,
     ensure_account_dir,
     list_account_dirs,
+    get_bundled_root,
 )
 from utils.selenium_login import fetch_cookies_via_selenium
 
@@ -413,10 +415,29 @@ class App:
     def _stream_process_output(self, account, proc):
         if not proc or not proc.stdout:
             return
-        for line in proc.stdout:
-            line = line.rstrip("\r\n")
-            if line:
+        for raw in iter(proc.stdout.readline, b""):
+            if not raw:
+                break
+            raw = raw.rstrip(b"\r\n")
+            if raw:
+                line = self._decode_log_line(raw)
                 self._ui(lambda l=line, a=account: self._append_log_line(f"[{a}] {l}"))
+
+    def _decode_log_line(self, raw: bytes) -> str:
+        try:
+            text = raw.decode("utf-8")
+        except UnicodeDecodeError:
+            text = raw.decode("gbk", errors="replace")
+        return self._unescape_unicode(text)
+
+    def _unescape_unicode(self, text: str) -> str:
+        def repl(match):
+            token = match.group(0)
+            try:
+                return token.encode("ascii").decode("unicode_escape")
+            except Exception:
+                return token
+        return re.sub(r"\\u[0-9a-fA-F]{4}|\\U[0-9a-fA-F]{8}", repl, text)
 
     def _spawn_service(self, account):
         account_dir = ensure_account_dir(account)
@@ -439,9 +460,7 @@ class App:
             env=env,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
-            text=True,
-            encoding="utf-8",
-            errors="replace",
+            text=False,
         )
         threading.Thread(target=self._stream_process_output, args=(account, proc), daemon=True).start()
         return proc
@@ -517,8 +536,22 @@ class App:
             messagebox.showinfo("检查更新", f"请手动打开：{url}")
 
     def open_prompts_folder(self):
-        ensure_prompts_dir()
-        path = get_prompts_dir()
+        account = self._current_account()
+        account_dir = ensure_account_dir(account) if account else self.app_dir
+        src = os.path.join(get_bundled_root(), "prompts")
+        prompts_dir = os.path.join(account_dir, "prompts")
+        os.makedirs(prompts_dir, exist_ok=True)
+        if os.path.exists(src):
+            for name in os.listdir(src):
+                src_path = os.path.join(src, name)
+                dst_path = os.path.join(prompts_dir, name)
+                if os.path.isfile(src_path) and not os.path.exists(dst_path):
+                    try:
+                        import shutil
+                        shutil.copy2(src_path, dst_path)
+                    except Exception:
+                        pass
+        path = prompts_dir
         try:
             os.startfile(path)
         except Exception as e:
