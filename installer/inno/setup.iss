@@ -11,6 +11,7 @@ SolidCompression=yes
 ArchitecturesAllowed=x64
 ArchitecturesInstallIn64BitMode=x64
 PrivilegesRequired=admin
+UninstallDisplayIcon={app}\v1.exe
 
 [Files]
 Source: "..\\..\\dist\\v1.exe"; DestDir: "{app}"; Flags: ignoreversion
@@ -19,7 +20,7 @@ Source: "..\\..\\chromedriver\\*"; DestDir: "{app}\\chromedriver"; Flags: recurs
 
 [Icons]
 Name: "{autoprograms}\\XianyuAutoAgent"; Filename: "{app}\\v1.exe"
-Name: "{autodesktop}\\XianyuAutoAgent"; Filename: "{app}\\v1.exe"; Tasks: desktopicon
+Name: "{commondesktop}\\XianyuAutoAgent"; Filename: "{app}\\v1.exe"; Tasks: desktopicon; Flags: createonlyiffileexists
 
 [Tasks]
 Name: "desktopicon"; Description: "Create a &desktop icon"; Flags: checkedonce
