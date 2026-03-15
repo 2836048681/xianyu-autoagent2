@@ -45,6 +45,8 @@ class App:
         self.app_dir = ensure_app_dir()
 
         self.log_queue = queue.Queue()
+        self.log_text = None
+        self._pending_logs = []
 
         self.proc_by_account = {}
         self.proc_lock = threading.Lock()
@@ -316,6 +318,7 @@ class App:
         scrollbar = ttk.Scrollbar(log_frame, orient="vertical", command=self.log_text.yview)
         scrollbar.grid(row=0, column=1, sticky="ns")
         self.log_text.configure(yscrollcommand=scrollbar.set)
+        self._flush_pending_logs()
 
     def _bind_shortcuts(self):
         self.root.bind_all("<Control-s>", lambda event: self.save_env())
@@ -350,8 +353,19 @@ class App:
         self.cookies_text.insert("1.0", env.get("COOKIES_STR", ""))
 
     def _append_log_line(self, msg: str):
+        if self.log_text is None:
+            self._pending_logs.append(msg)
+            return
         self.log_text.insert(tk.END, f"{msg}\n")
         self.log_text.see(tk.END)
+
+    def _flush_pending_logs(self):
+        if self.log_text is None or not self._pending_logs:
+            return
+        for msg in self._pending_logs:
+            self.log_text.insert(tk.END, f"{msg}\n")
+        self.log_text.see(tk.END)
+        self._pending_logs = []
 
     def save_env(self):
         if not self._current_account():
@@ -424,10 +438,18 @@ class App:
                 self._ui(lambda l=line, a=account: self._append_log_line(f"[{a}] {l}"))
 
     def _decode_log_line(self, raw: bytes) -> str:
-        try:
-            text = raw.decode("utf-8")
-        except UnicodeDecodeError:
-            text = raw.decode("gbk", errors="replace")
+        text = None
+        for enc in ("utf-8", "gbk"):
+            try:
+                candidate = raw.decode(enc)
+            except UnicodeDecodeError:
+                continue
+            if "�" in candidate or "锟" in candidate:
+                continue
+            text = candidate
+            break
+        if text is None:
+            text = raw.decode("utf-8", errors="replace")
         return self._unescape_unicode(text)
 
     def _unescape_unicode(self, text: str) -> str:
@@ -571,6 +593,11 @@ class App:
 
 def main():
     if "--run-service" in sys.argv:
+        for stream in (sys.stdout, sys.stderr):
+            try:
+                stream.reconfigure(encoding="utf-8", errors="replace")
+            except Exception:
+                pass
         from utils.env_utils import set_active_app_dir
         set_active_app_dir(os.getenv("XYA_APP_DIR"))
         if os.path.exists(get_env_path()):
