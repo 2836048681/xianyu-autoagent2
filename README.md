@@ -32,27 +32,14 @@
 └─ installer/inno/setup.iss   # Inno Setup 脚本
 ```
 
-## 运行与配置
+## 运行与配置（优先使用 Release 最新版）
 
-### 方式一：GUI 可视化启动（推荐）
+请优先前往 Release 页面下载最新安装包并使用：  
+https://github.com/2836048681/xianyu-autoagent2/releases
 
-```bash
-python gui_app.py
-```
+安装完成后，通过桌面快捷方式启动即可。
 
-GUI 支持：
-- 配置 `API_KEY` / `MODEL_BASE_URL` / `MODEL_NAME` / `COOKIES_STR`
-- 一键扫码登录并自动更新 Cookie
-- 启停/重启服务
-- 实时运行日志
-
-### 方式二：命令行运行
-
-```bash
-python main.py
-```
-
-首次启动会要求填写关键配置（写入用户目录的 `.env`）。
+如需源码方式运行（开发/调试用途），再参考下方“环境变量说明”与“离线打包与安装”。
 
 ## 环境变量说明
 
