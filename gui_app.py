@@ -43,7 +43,6 @@ class App:
         self.app_dir = ensure_app_dir()
 
         self.log_queue = queue.Queue()
-        self._setup_logger_bridge()
 
         self.proc_by_account = {}
         self.proc_lock = threading.Lock()
@@ -53,6 +52,7 @@ class App:
 
         self._apply_theme()
         self._build_ui()
+        self._setup_logger_bridge()
         self._reload_accounts()
         self._bind_shortcuts()
 
