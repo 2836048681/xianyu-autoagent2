@@ -2,7 +2,7 @@ import os
 import re
 import sys
 import shutil
-from typing import Dict, Optional
+from typing import Dict, Optional, List
 
 
 def get_project_root() -> str:
@@ -15,7 +15,18 @@ def get_bundled_root() -> str:
     return get_project_root()
 
 
+_ACTIVE_APP_DIR: Optional[str] = None
+
+
+def set_active_app_dir(path: Optional[str]) -> None:
+    global _ACTIVE_APP_DIR
+    _ACTIVE_APP_DIR = path
+
+
 def get_user_data_dir() -> str:
+    if _ACTIVE_APP_DIR:
+        os.makedirs(_ACTIVE_APP_DIR, exist_ok=True)
+        return _ACTIVE_APP_DIR
     base = os.getenv("APPDATA") or os.path.expanduser("~")
     path = os.path.join(base, "XianyuAutoAgent")
     os.makedirs(path, exist_ok=True)
@@ -98,3 +109,25 @@ def ensure_prompts_dir() -> str:
         if os.path.isfile(src_path) and not os.path.exists(dst_path):
             shutil.copy2(src_path, dst_path)
     return dst
+
+
+def ensure_account_dir(name: str) -> str:
+    base = get_user_data_dir()
+    path = os.path.join(base, "accounts", name)
+    os.makedirs(path, exist_ok=True)
+    os.makedirs(os.path.join(path, "data"), exist_ok=True)
+    os.makedirs(os.path.join(path, "prompts"), exist_ok=True)
+    return path
+
+
+def list_account_dirs() -> List[str]:
+    base = get_user_data_dir()
+    root = os.path.join(base, "accounts")
+    if not os.path.exists(root):
+        return []
+    names = []
+    for entry in os.listdir(root):
+        full = os.path.join(root, entry)
+        if os.path.isdir(full):
+            names.append(entry)
+    return sorted(names)
