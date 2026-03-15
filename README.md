@@ -46,6 +46,25 @@ https://github.com/2836048681/xianyu-autoagent2/releases
 支持最多 5 个账号同时运行。每个账号独立 `.env` / `prompts` / `data`，互不影响。  
 在界面中新增账号后，配置并启动即可并行运行。
 
+### 多账号使用说明
+
+1. 点击 “新增账号”，输入账号名称（建议 `account1`、`account2`）。
+2. 选择账号后填写 `API_KEY` / `MODEL_BASE_URL` / `MODEL_NAME` / `COOKIES_STR`。
+3. 点击 “扫码登录并更新 Cookie”，完成登录后保存配置。
+4. 点击 “启动当前账号”，即可并行运行。
+5. 账号之间互不影响，配置与数据分别存放在：
+   `%APPDATA%\XianyuAutoAgent\accounts\<account>\`
+
+### 多账号隔离测试脚本
+
+用于验证各账号配置/数据路径是否独立（不启动服务）：
+
+```powershell
+python scripts\test_multi_account.py --accounts account1,account2
+```
+
+输出会显示每个账号的 `.env`、`prompts`、`data` 路径与示例配置。
+
 ## 环境变量说明
 
 必填：
