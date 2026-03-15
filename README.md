@@ -1,172 +1,133 @@
-# Xianyu AutoAgent 2.0 - 闲鱼智能客服机器人系统
-
-本项目基于 https://github.com/shaxiu/XianyuAutoAgent 改版。
-
+﻿# Xianyu AutoAgent 2.0 - 闂查奔鏅鸿兘瀹㈡湇鏈哄櫒浜虹郴缁?
+鏈」鐩熀浜?https://github.com/shaxiu/XianyuAutoAgent 鏀圭増銆?
 [![Python Version](https://img.shields.io/badge/python-3.8%2B-blue)](https://www.python.org/) [![LLM Powered](https://img.shields.io/badge/LLM-powered-FF6F61)](https://platform.openai.com/)
 
-专为闲鱼平台打造的 AI 值守方案，支持多专家协同、智能议价、上下文感知对话与自动化回复。
+涓撲负闂查奔骞冲彴鎵撻€犵殑 AI 鍊煎畧鏂规锛屾敮鎸佸涓撳鍗忓悓銆佹櫤鑳借浠枫€佷笂涓嬫枃鎰熺煡瀵硅瘽涓庤嚜鍔ㄥ寲鍥炲銆?
+## 涓昏鐗规€?
+- 澶氫笓瀹跺崗鍚屼笌鎰忓浘璺敱
+- 涓婁笅鏂囨劅鐭ュ璇濅笌浼氳瘽璁板繂
+- 璁环涓庢妧鏈敮鎸佸満鏅鐞?- 鍩虹鏃ュ織杈撳嚭涓庤繍琛岀洃鎺?- GUI 鍙鍖栬繍琛屻€佹壂鐮佺櫥褰曚笌瀹炴椂鏃ュ織
+- 绂荤嚎鎵撳寘锛堝唴缃?Chrome + chromedriver锛夛紝瀹夎鍚庡彲鐙珛杩愯
 
-## 主要特性
-
-- 多专家协同与意图路由
-- 上下文感知对话与会话记忆
-- 议价与技术支持场景处理
-- 基础日志输出与运行监控
-- GUI 可视化运行、扫码登录与实时日志
-- 离线打包（内置 Chrome + chromedriver），安装后可独立运行
-
-## 目录结构
+## 鐩綍缁撴瀯
 
 ```
 .
-├─ gui_app.py                # 可视化入口
-├─ main.py                   # 服务入口
-├─ utils/
-│  ├─ env_utils.py            # 离线配置与用户数据目录
-│  └─ selenium_login.py       # 扫码登录获取 Cookie
-├─ prompts/                   # 提示词模板（自动复制到用户目录）
-├─ chrome/                    # 离线浏览器（打包/安装时内置）
-├─ chromedriver/              # 离线驱动（打包/安装时内置）
-├─ build_exe.ps1              # 单文件 EXE 构建
-├─ build_all.ps1              # EXE + 安装包一键构建
-└─ installer/inno/setup.iss   # Inno Setup 脚本
+鈹溾攢 gui_app.py                # 鍙鍖栧叆鍙?鈹溾攢 main.py                   # 鏈嶅姟鍏ュ彛
+鈹溾攢 utils/
+鈹? 鈹溾攢 env_utils.py            # 绂荤嚎閰嶇疆涓庣敤鎴锋暟鎹洰褰?鈹? 鈹斺攢 playwright_login.py       # 鎵爜鐧诲綍鑾峰彇 Cookie
+鈹溾攢 prompts/                   # 鎻愮ず璇嶆ā鏉匡紙鑷姩澶嶅埗鍒扮敤鎴风洰褰曪級
+鈹溾攢 chrome/                    # 绂荤嚎娴忚鍣紙鎵撳寘/瀹夎鏃跺唴缃級
+鈹溾攢 chromedriver/              # 绂荤嚎椹卞姩锛堟墦鍖?瀹夎鏃跺唴缃級
+鈹溾攢 build_exe.ps1              # 鍗曟枃浠?EXE 鏋勫缓
+鈹溾攢 build_all.ps1              # EXE + 瀹夎鍖呬竴閿瀯寤?鈹斺攢 installer/inno/setup.iss   # Inno Setup 鑴氭湰
 ```
 
-## 运行与配置（优先使用 Release 最新版）
-
-请优先前往 Release 页面下载最新安装包并使用：  
+## 杩愯涓庨厤缃紙浼樺厛浣跨敤 Release 鏈€鏂扮増锛?
+璇蜂紭鍏堝墠寰€ Release 椤甸潰涓嬭浇鏈€鏂板畨瑁呭寘骞朵娇鐢細  
 https://github.com/2836048681/xianyu-autoagent2/releases
 
-安装完成后，通过桌面快捷方式启动即可。
-
-如需源码方式运行（开发/调试用途），再参考下方“环境变量说明”与“离线打包与安装”。
-
-## 多账号并行
-
-支持最多 5 个账号同时运行。每个账号独立 `.env` / `prompts` / `data`，互不影响。  
-在界面中新增账号后，配置并启动即可并行运行。
-
-### 多账号使用说明
-
-1. 点击 “新增账号”，输入账号名称（建议 `account1`、`account2`）。
-2. 选择账号后填写 `API_KEY` / `MODEL_BASE_URL` / `MODEL_NAME` / `COOKIES_STR`。
-3. 点击 “扫码登录并更新 Cookie”，完成登录后保存配置。
-4. 点击 “启动当前账号”，即可并行运行。
-5. 账号之间互不影响，配置与数据分别存放在：
+瀹夎瀹屾垚鍚庯紝閫氳繃妗岄潰蹇嵎鏂瑰紡鍚姩鍗冲彲銆?
+濡傞渶婧愮爜鏂瑰紡杩愯锛堝紑鍙?璋冭瘯鐢ㄩ€旓級锛屽啀鍙傝€冧笅鏂光€滅幆澧冨彉閲忚鏄庘€濅笌鈥滅绾挎墦鍖呬笌瀹夎鈥濄€?
+## 澶氳处鍙峰苟琛?
+鏀寔鏈€澶?5 涓处鍙峰悓鏃惰繍琛屻€傛瘡涓处鍙风嫭绔?`.env` / `prompts` / `data`锛屼簰涓嶅奖鍝嶃€? 
+鍦ㄧ晫闈腑鏂板璐﹀彿鍚庯紝閰嶇疆骞跺惎鍔ㄥ嵆鍙苟琛岃繍琛屻€?
+### 澶氳处鍙蜂娇鐢ㄨ鏄?
+1. 鐐瑰嚮 鈥滄柊澧炶处鍙封€濓紝杈撳叆璐﹀彿鍚嶇О锛堝缓璁?`account1`銆乣account2`锛夈€?2. 閫夋嫨璐﹀彿鍚庡～鍐?`API_KEY` / `MODEL_BASE_URL` / `MODEL_NAME` / `COOKIES_STR`銆?3. 鐐瑰嚮 鈥滄壂鐮佺櫥褰曞苟鏇存柊 Cookie鈥濓紝瀹屾垚鐧诲綍鍚庝繚瀛橀厤缃€?4. 鐐瑰嚮 鈥滃惎鍔ㄥ綋鍓嶈处鍙封€濓紝鍗冲彲骞惰杩愯銆?5. 璐﹀彿涔嬮棿浜掍笉褰卞搷锛岄厤缃笌鏁版嵁鍒嗗埆瀛樻斁鍦細
    `%APPDATA%\XianyuAutoAgent\accounts\<account>\`
 
-### 多账号隔离测试脚本
-
-用于验证各账号配置/数据路径是否独立（不启动服务）：
+### 澶氳处鍙烽殧绂绘祴璇曡剼鏈?
+鐢ㄤ簬楠岃瘉鍚勮处鍙烽厤缃?鏁版嵁璺緞鏄惁鐙珛锛堜笉鍚姩鏈嶅姟锛夛細
 
 ```powershell
 python scripts\test_multi_account.py --accounts account1,account2
 ```
 
-输出会显示每个账号的 `.env`、`prompts`、`data` 路径与示例配置。
+杈撳嚭浼氭樉绀烘瘡涓处鍙风殑 `.env`銆乣prompts`銆乣data` 璺緞涓庣ず渚嬮厤缃€?
+## 鐜鍙橀噺璇存槑
 
-## 环境变量说明
-
-必填：
-- `API_KEY`：模型平台 API Key
-- `COOKIES_STR`：闲鱼 Web Cookie（可通过 GUI 扫码获取）
-
-可选：
-- `MODEL_BASE_URL`：模型服务地址，默认 `https://dashscope.aliyuncs.com/compatible-mode/v1`
-- `MODEL_NAME`：模型名称，默认 `qwen-max`
-- `TOGGLE_KEYWORDS`：人工接管切换关键字，默认 `。`
-- `SIMULATE_HUMAN_TYPING`：模拟人工输入延迟，默认 `False`
+蹇呭～锛?- `API_KEY`锛氭ā鍨嬪钩鍙?API Key
+- `COOKIES_STR`锛氶棽楸?Web Cookie锛堝彲閫氳繃 GUI 鎵爜鑾峰彇锛?
+鍙€夛細
+- `MODEL_BASE_URL`锛氭ā鍨嬫湇鍔″湴鍧€锛岄粯璁?`https://dashscope.aliyuncs.com/compatible-mode/v1`
+- `MODEL_NAME`锛氭ā鍨嬪悕绉帮紝榛樿 `qwen-max`
+- `TOGGLE_KEYWORDS`锛氫汉宸ユ帴绠″垏鎹㈠叧閿瓧锛岄粯璁?`銆俙
+- `SIMULATE_HUMAN_TYPING`锛氭ā鎷熶汉宸ヨ緭鍏ュ欢杩燂紝榛樿 `False`
 - `HEARTBEAT_INTERVAL` / `HEARTBEAT_TIMEOUT`
 - `TOKEN_REFRESH_INTERVAL` / `TOKEN_RETRY_INTERVAL`
 - `MANUAL_MODE_TIMEOUT`
 - `MESSAGE_EXPIRE_TIME`
 
-## 离线打包与安装（Windows）
+## 绂荤嚎鎵撳寘涓庡畨瑁咃紙Windows锛?
+### 1. 鍑嗗绂荤嚎 Chrome
 
-### 1. 准备离线 Chrome
-
-将离线浏览器放到仓库根目录：
+灏嗙绾挎祻瑙堝櫒鏀惧埌浠撳簱鏍圭洰褰曪細
 
 ```
 chrome\chrome.exe
 chromedriver\chromedriver.exe
 ```
 
-### 2. 构建单文件 EXE
+### 2. 鏋勫缓鍗曟枃浠?EXE
 
 ```powershell
 .\build_exe.ps1
 ```
 
-产物：
-```
+浜х墿锛?```
 dist\v1.exe
 ```
 
-### 3. 生成安装包（Inno Setup）
-
+### 3. 鐢熸垚瀹夎鍖咃紙Inno Setup锛?
 ```powershell
 .\build_all.ps1
 ```
 
-产物：
-```
+浜х墿锛?```
 installer\inno\Output\XianyuAutoAgent_0.1_Setup.exe
 ```
 
-安装特性：
-- 安装目录默认 `D:\rickxy`
-- 内置 `chrome` / `chromedriver`
-- 可选创建桌面快捷方式
-- 可选开机自启
-
-## 用户数据与离线运行
-
-运行后自动生成用户目录：
+瀹夎鐗规€э細
+- 瀹夎鐩綍榛樿 `D:\rickxy`
+- 鍐呯疆 `chrome` / `chromedriver`
+- 鍙€夊垱寤烘闈㈠揩鎹锋柟寮?- 鍙€夊紑鏈鸿嚜鍚?
+## 鐢ㄦ埛鏁版嵁涓庣绾胯繍琛?
+杩愯鍚庤嚜鍔ㄧ敓鎴愮敤鎴风洰褰曪細
 
 ```
 %APPDATA%\XianyuAutoAgent
 ```
 
-其中包含：
-- `.env`（配置文件）
-- `prompts/`（自动复制模板）
-- `data/`（会话数据库）
-
-因此 EXE 或安装包可单独运行，不要求同级目录放置 `.env` 或 `prompts`。
-
-## 提示词模板
-
-`prompts` 目录内包含：
+鍏朵腑鍖呭惈锛?- `.env`锛堥厤缃枃浠讹級
+- `prompts/`锛堣嚜鍔ㄥ鍒舵ā鏉匡級
+- `data/`锛堜細璇濇暟鎹簱锛?
+鍥犳 EXE 鎴栧畨瑁呭寘鍙崟鐙繍琛岋紝涓嶈姹傚悓绾х洰褰曟斁缃?`.env` 鎴?`prompts`銆?
+## 鎻愮ず璇嶆ā鏉?
+`prompts` 鐩綍鍐呭寘鍚細
 
 - `classify_prompt.txt`
 - `price_prompt.txt`
 - `tech_prompt.txt`
 - `default_prompt.txt`
 
-首次运行会自动复制到用户目录，可在用户目录中修改模板。
+棣栨杩愯浼氳嚜鍔ㄥ鍒跺埌鐢ㄦ埛鐩綍锛屽彲鍦ㄧ敤鎴风洰褰曚腑淇敼妯℃澘銆?
+## Release 璇存槑锛坴0.1锛?
+涓昏鏇存柊锛?- 鏂板 GUI 鍙鍖栨帶鍒跺彴锛堟壂鐮佺櫥褰曘€侀厤缃鐞嗐€佸疄鏃舵棩蹇楋級
+- 鏀寔绂荤嚎鐧诲綍涓?Cookie 鑷姩鏇存柊锛堝唴缃?Chrome + chromedriver锛?- 鍗曟枃浠?`v1.exe` 涓?Inno Setup 瀹夎鍖?- 鐢ㄦ埛鏁版嵁鐙珛瀛樺偍浜?`%APPDATA%\XianyuAutoAgent`
+- 涓€閿瀯寤鸿剼鏈?`build_exe.ps1` / `build_all.ps1`
 
-## Release 说明（v0.1）
-
-主要更新：
-- 新增 GUI 可视化控制台（扫码登录、配置管理、实时日志）
-- 支持离线登录与 Cookie 自动更新（内置 Chrome + chromedriver）
-- 单文件 `v1.exe` 与 Inno Setup 安装包
-- 用户数据独立存储于 `%APPDATA%\XianyuAutoAgent`
-- 一键构建脚本 `build_exe.ps1` / `build_all.ps1`
-
-## 界面预览
+## 鐣岄潰棰勮
 
 ![UI](./images/ui.png)
 
-已知限制：
-- 当前仅提供 Windows 64 位离线包
-- 首次启动需要配置模型 API
+宸茬煡闄愬埗锛?- 褰撳墠浠呮彁渚?Windows 64 浣嶇绾垮寘
+- 棣栨鍚姩闇€瑕侀厤缃ā鍨?API
 
-## 贡献
+## 璐＄尞
 
-欢迎提交 Issue 或 PR。
+娆㈣繋鎻愪氦 Issue 鎴?PR銆?
+## 鍏嶈矗澹版槑
 
-## 免责声明
+鏈」鐩粎渚涘涔犱氦娴佷娇鐢紝鑻ユ秹鍙婁镜鏉冭鑱旂郴浣滆€呭垹闄ゃ€?
 
-本项目仅供学习交流使用，若涉及侵权请联系作者删除。
+

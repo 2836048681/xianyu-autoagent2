@@ -3,8 +3,8 @@ from PyInstaller.utils.hooks import collect_all
 
 datas = [('prompts', 'prompts'), ('chrome', 'chrome'), ('chromedriver', 'chromedriver')]
 binaries = []
-hiddenimports = ['tkinter', 'tkinter.ttk', 'selenium']
-tmp_ret = collect_all('selenium')
+hiddenimports = ['tkinter', 'tkinter.ttk', 'playwright']
+tmp_ret = collect_all('playwright')
 datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
 
 

@@ -1,4 +1,4 @@
-import os
+﻿import os
 import sys
 import threading
 import subprocess
@@ -25,7 +25,7 @@ from utils.env_utils import (
     list_account_dirs,
     get_bundled_root,
 )
-from utils.selenium_login import fetch_cookies_via_selenium
+from utils.playwright_login import fetch_cookies_via_playwright
 
 
 class App:
@@ -408,7 +408,7 @@ class App:
 
         def run_login():
             try:
-                cookie_str = fetch_cookies_via_selenium(fresh_profile=True)
+                cookie_str = fetch_cookies_via_playwright(fresh_profile=True)
                 if not cookie_str:
                     self._ui(lambda: messagebox.showwarning("登录失败", "未获取到 Cookie"))
                     self._ui(lambda: logger.warning(f"[{self._current_account()}] 扫码登录失败或未完成"))
@@ -621,3 +621,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

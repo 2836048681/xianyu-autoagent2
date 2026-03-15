@@ -23,11 +23,12 @@ $cmd = @(
     "--hidden-import",
     "tkinter.ttk",
     "--hidden-import",
-    "selenium",
+    "playwright",
     "--collect-all",
-    "selenium",
+    "playwright",
     "gui_app.py"
 )
 
 Write-Host "Running: $($cmd -join ' ')"
 & $cmd[0] $cmd[1..($cmd.Length-1)]
+
