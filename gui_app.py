@@ -39,8 +39,8 @@ class App:
     def __init__(self, root: tk.Tk):
         self.root = root
         self.root.title("Xianyu AutoAgent 2.0")
-        self.root.geometry("980x680")
-        self.root.minsize(900, 600)
+        self.root.geometry("1020x720")
+        self.root.minsize(960, 640)
 
         self.app_dir = ensure_app_dir()
 
@@ -53,6 +53,8 @@ class App:
 
         self.selected_account = tk.StringVar()
         self.accounts = []
+        self.status_label = None
+        self.count_var = tk.StringVar(value="账号: 0/5")
 
         self._apply_theme()
         self._build_ui()
@@ -63,7 +65,7 @@ class App:
         self.root.protocol("WM_DELETE_WINDOW", self.on_close)
 
     def _apply_theme(self):
-        self.root.configure(bg="#F5F7FB")
+        self.root.configure(bg="#F8FAFC")
         style = ttk.Style(self.root)
         try:
             style.theme_use("clam")
@@ -74,22 +76,26 @@ class App:
         header_font = ("Microsoft YaHei UI", 18, "bold")
         title_font = ("Microsoft YaHei UI", 12, "bold")
 
-        style.configure(".", font=default_font, background="#F5F7FB")
-        style.configure("TFrame", background="#F5F7FB")
-        style.configure("Card.TFrame", background="#FFFFFF", relief="flat")
-        style.configure("Title.TLabel", background="#F5F7FB", foreground="#0F172A", font=header_font)
-        style.configure("Subtitle.TLabel", background="#F5F7FB", foreground="#64748B", font=default_font)
+        style.configure(".", font=default_font, background="#F8FAFC")
+        style.configure("TFrame", background="#F8FAFC")
+        style.configure("Card.TFrame", background="#FFFFFF", relief="solid", borderwidth=1)
+        style.configure("Title.TLabel", background="#F8FAFC", foreground="#0F172A", font=header_font)
+        style.configure("Subtitle.TLabel", background="#F8FAFC", foreground="#94A3B8", font=default_font)
         style.configure("CardTitle.TLabel", background="#FFFFFF", foreground="#0F172A", font=title_font)
+        style.configure("CardSubtitle.TLabel", background="#FFFFFF", foreground="#94A3B8", font=default_font)
         style.configure("TLabel", background="#FFFFFF")
-        style.configure("Field.TLabel", background="#FFFFFF", foreground="#334155")
-        style.configure("Status.TLabel", background="#F5F7FB", foreground="#0F172A", font=("Microsoft YaHei UI", 10, "bold"))
+        style.configure("Field.TLabel", background="#FFFFFF", foreground="#475569")
+        style.configure("Status.TLabel", background="#F8FAFC", foreground="#0F172A", font=("Microsoft YaHei UI", 10, "bold"))
+        style.configure("PillIdle.TLabel", background="#E5E7EB", foreground="#0F172A", padding=(12, 4))
+        style.configure("PillRunning.TLabel", background="#DCFCE7", foreground="#166534", padding=(12, 4))
+        style.configure("PillStopped.TLabel", background="#FEE2E2", foreground="#991B1B", padding=(12, 4))
 
         style.configure(
             "Primary.TButton",
             background="#2563EB",
             foreground="#FFFFFF",
             borderwidth=0,
-            padding=(14, 8),
+            padding=(16, 8),
         )
         style.map(
             "Primary.TButton",
@@ -99,14 +105,14 @@ class App:
 
         style.configure(
             "Secondary.TButton",
-            background="#E2E8F0",
+            background="#E5E7EB",
             foreground="#0F172A",
             borderwidth=0,
-            padding=(14, 8),
+            padding=(16, 8),
         )
         style.map(
             "Secondary.TButton",
-            background=[("active", "#CBD5F5")],
+            background=[("active", "#D1D5DB")],
         )
 
         style.configure(
@@ -124,7 +130,9 @@ class App:
 
         style.configure("TLabelframe", background="#FFFFFF", borderwidth=0)
         style.configure("TLabelframe.Label", background="#FFFFFF", foreground="#0F172A", font=title_font)
-        style.configure("TEntry", padding=(6, 6))
+        style.configure("TEntry", padding=(8, 6))
+        style.configure("Tiny.TButton", padding=(10, 4))
+        style.configure("Separator.TFrame", background="#E2E8F0")
 
     def _setup_logger_bridge(self):
         class TkLogSink:
@@ -158,9 +166,9 @@ class App:
 
     def _build_ui(self):
         self.root.columnconfigure(0, weight=1)
-        self.root.rowconfigure(1, weight=1)
+        self.root.rowconfigure(2, weight=1)
 
-        header = ttk.Frame(self.root, padding=(24, 18, 24, 10))
+        header = ttk.Frame(self.root, padding=(28, 22, 28, 12))
         header.grid(row=0, column=0, sticky="ew")
         header.columnconfigure(0, weight=1)
 
@@ -168,7 +176,7 @@ class App:
         ttk.Label(
             header,
             text="智能闲鱼客服 · 多账号并行 · 实时日志",
-            style="Subtitle.TLabel",
+            style="CardSubtitle.TLabel",
         ).grid(row=1, column=0, sticky="w", pady=(2, 0))
 
         status_wrap = ttk.Frame(header)
@@ -176,16 +184,21 @@ class App:
         status_wrap.configure(style="TFrame")
 
         self.status_var = tk.StringVar(value="状态：未启动")
-        ttk.Label(status_wrap, textvariable=self.status_var, style="Status.TLabel").grid(row=0, column=0, sticky="e")
+        self.status_label = ttk.Label(status_wrap, textvariable=self.status_var, style="PillIdle.TLabel")
+        self.status_label.grid(row=0, column=0, sticky="e")
+        ttk.Label(status_wrap, textvariable=self.count_var, style="Subtitle.TLabel").grid(row=1, column=0, sticky="e", pady=(6, 0))
 
-        content = ttk.Frame(self.root, padding=(24, 0, 24, 24))
-        content.grid(row=1, column=0, sticky="nsew")
+        divider = ttk.Frame(self.root, style="Separator.TFrame", height=1)
+        divider.grid(row=1, column=0, sticky="ew", padx=28)
+
+        content = ttk.Frame(self.root, padding=(28, 18, 28, 28))
+        content.grid(row=2, column=0, sticky="nsew")
         content.columnconfigure(0, weight=3)
         content.columnconfigure(1, weight=2)
         content.rowconfigure(1, weight=1)
 
         # Accounts panel
-        account_card = ttk.Frame(content, style="Card.TFrame", padding=18)
+        account_card = ttk.Frame(content, style="Card.TFrame", padding=20)
         account_card.grid(row=0, column=0, sticky="nsew", padx=(0, 12), pady=(0, 12))
         account_card.columnconfigure(1, weight=1)
 
@@ -213,13 +226,23 @@ class App:
         ttk.Entry(account_card, textvariable=self.model_name_var).grid(row=4, column=1, columnspan=2, sticky="ew", pady=4)
 
         ttk.Label(account_card, text="COOKIES_STR", style="Field.TLabel").grid(row=5, column=0, sticky="nw", pady=4)
-        self.cookies_text = tk.Text(account_card, height=6, wrap="word", relief="solid", borderwidth=1)
+        self.cookies_text = tk.Text(
+            account_card,
+            height=6,
+            wrap="word",
+            relief="solid",
+            borderwidth=1,
+            background="#F8FAFC",
+            highlightthickness=1,
+            highlightbackground="#E2E8F0",
+            highlightcolor="#93C5FD",
+        )
         self.cookies_text.grid(row=5, column=1, columnspan=2, sticky="ew", pady=4)
 
         ttk.Label(
             account_card,
             text="建议通过扫码登录自动更新 Cookie，避免手动复制出错。",
-            style="Subtitle.TLabel",
+            style="CardSubtitle.TLabel",
         ).grid(row=6, column=0, columnspan=3, sticky="w")
 
         account_actions = ttk.Frame(account_card)
@@ -237,7 +260,7 @@ class App:
         right_col.columnconfigure(0, weight=1)
         right_col.rowconfigure(1, weight=1)
 
-        control_card = ttk.Frame(right_col, style="Card.TFrame", padding=18)
+        control_card = ttk.Frame(right_col, style="Card.TFrame", padding=20)
         control_card.grid(row=0, column=0, sticky="nsew", pady=(0, 12))
         control_card.columnconfigure(0, weight=1)
         ttk.Label(control_card, text="服务控制", style="CardTitle.TLabel").grid(row=0, column=0, sticky="w")
@@ -257,10 +280,10 @@ class App:
         ttk.Label(
             control_card,
             text="提示：每个账号使用独立配置与数据库，可并行运行。",
-            style="Subtitle.TLabel",
+            style="CardSubtitle.TLabel",
         ).grid(row=2, column=0, sticky="w", pady=(12, 0))
 
-        settings_card = ttk.Frame(right_col, style="Card.TFrame", padding=18)
+        settings_card = ttk.Frame(right_col, style="Card.TFrame", padding=20)
         settings_card.grid(row=1, column=0, sticky="nsew")
         settings_card.columnconfigure(0, weight=1)
         ttk.Label(settings_card, text="设置", style="CardTitle.TLabel").grid(row=0, column=0, sticky="w")
@@ -293,11 +316,18 @@ class App:
         ).grid(row=4, column=0, sticky="w", pady=(8, 0))
 
         # Logs
-        log_card = ttk.Frame(content, style="Card.TFrame", padding=18)
+        log_card = ttk.Frame(content, style="Card.TFrame", padding=20)
         log_card.grid(row=1, column=0, columnspan=2, sticky="nsew")
         log_card.rowconfigure(1, weight=1)
         log_card.columnconfigure(0, weight=1)
-        ttk.Label(log_card, text="运行日志", style="CardTitle.TLabel").grid(row=0, column=0, sticky="w")
+        log_header = ttk.Frame(log_card, style="Card.TFrame")
+        log_header.grid(row=0, column=0, sticky="ew")
+        log_header.columnconfigure(0, weight=1)
+        ttk.Label(log_header, text="运行日志", style="CardTitle.TLabel").grid(row=0, column=0, sticky="w")
+        log_actions = ttk.Frame(log_header, style="Card.TFrame")
+        log_actions.grid(row=0, column=1, sticky="e")
+        ttk.Button(log_actions, text="复制日志", style="Tiny.TButton", command=self.copy_logs).grid(row=0, column=0, padx=(0, 8))
+        ttk.Button(log_actions, text="清空日志", style="Tiny.TButton", command=self.clear_logs).grid(row=0, column=1)
 
         log_frame = ttk.Frame(log_card)
         log_frame.grid(row=1, column=0, sticky="nsew", pady=(10, 0))
@@ -308,11 +338,13 @@ class App:
             log_frame,
             height=14,
             wrap="word",
-            background="#0B1220",
+            background="#0F172A",
             foreground="#E2E8F0",
             insertbackground="#E2E8F0",
             relief="flat",
             font=("Consolas", 10),
+            padx=8,
+            pady=8,
         )
         self.log_text.grid(row=0, column=0, sticky="nsew")
         scrollbar = ttk.Scrollbar(log_frame, orient="vertical", command=self.log_text.yview)
@@ -333,6 +365,7 @@ class App:
         self.account_combo["values"] = self.accounts
         if self.selected_account.get() not in self.accounts:
             self.selected_account.set(self.accounts[0])
+        self.count_var.set(f"账号: {len(self.accounts)}/5")
         self._load_env_into_fields()
 
     def _current_account(self):
@@ -366,6 +399,34 @@ class App:
             self.log_text.insert(tk.END, f"{msg}\n")
         self.log_text.see(tk.END)
         self._pending_logs = []
+
+    def clear_logs(self):
+        if self.log_text is None:
+            return
+        self.log_text.delete("1.0", tk.END)
+
+    def copy_logs(self):
+        if self.log_text is None:
+            return
+        content = self.log_text.get("1.0", tk.END).strip()
+        if not content:
+            return
+        self.root.clipboard_clear()
+        self.root.clipboard_append(content)
+
+    def _set_status(self, state: str):
+        if state == "running":
+            self.status_var.set("状态：运行中")
+            if self.status_label is not None:
+                self.status_label.configure(style="PillRunning.TLabel")
+        elif state == "stopped":
+            self.status_var.set("状态：已停止")
+            if self.status_label is not None:
+                self.status_label.configure(style="PillStopped.TLabel")
+        else:
+            self.status_var.set("状态：未启动")
+            if self.status_label is not None:
+                self.status_label.configure(style="PillIdle.TLabel")
 
     def save_env(self):
         if not self._current_account():
@@ -499,7 +560,7 @@ class App:
                 return
             self.save_env()
             self.proc_by_account[account] = self._spawn_service(account)
-            self.status_var.set("状态：运行中")
+            self._set_status("running")
             logger.info(f"[{account}] 服务已启动")
 
     def stop_service(self):
@@ -519,7 +580,7 @@ class App:
             logger.info(f"[{account}] 服务已停止")
             self._cleanup_proc(account)
             if not any(p and p.poll() is None for p in self.proc_by_account.values()):
-                self.status_var.set("状态：已停止")
+                self._set_status("stopped")
 
     def stop_all(self):
         with self.proc_lock:
@@ -532,7 +593,7 @@ class App:
                         proc.kill()
                     logger.info(f"[{account}] 服务已停止")
             self.proc_by_account = {}
-            self.status_var.set("状态：已停止")
+            self._set_status("stopped")
 
     def restart_service(self):
         self.stop_service()
