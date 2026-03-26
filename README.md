@@ -1,68 +1,75 @@
 # Xianyu AutoAgent
 
-面向闲鱼场景的自动化值守项目，支持：
+<div align="center">
 
-- Python 主服务自动处理消息与上下文
-- 多账号隔离运行
-- WinUI 3 桌面端配置与控制台
-- 内嵌 WebView2 / 浏览器兜底登录
-- 离线打包与 Windows 安装包分发
+闲鱼多账号自动化值守工具，集成 Python 服务、WinUI 3 桌面端、扫码登录、实时日志与 Windows 安装包分发。
 
-仓库地址：
+[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![WinUI 3](https://img.shields.io/badge/WinUI%203-Windows-0078D4)](https://learn.microsoft.com/windows/apps/winui/)
+[![Release](https://img.shields.io/github/v/release/2836048681/xianyu-autoagent2)](https://github.com/2836048681/xianyu-autoagent2/releases)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](./LICENSE)
 
-- 原始参考项目：[shaxiu/XianyuAutoAgent](https://github.com/shaxiu/XianyuAutoAgent)
-- 当前仓库：[2836048681/xianyu-autoagent2](https://github.com/2836048681/xianyu-autoagent2)
+</div>
+
+## 项目简介
+
+本项目面向闲鱼消息自动化处理场景，提供一套可落地的桌面化运行方案：
+
+- Python 后台服务负责消息处理与自动化逻辑
+- WinUI 3 桌面端负责多账号配置、启动控制、登录与日志查看
+- 支持最多 5 个账号隔离运行
+- 支持内嵌 WebView2 登录与浏览器兜底登录
+- 支持一键构建 Windows 安装包
+
+参考项目：
+
+- 原始仓库：[shaxiu/XianyuAutoAgent](https://github.com/shaxiu/XianyuAutoAgent)
+
+当前仓库：
+
+- GitHub：[2836048681/xianyu-autoagent2](https://github.com/2836048681/xianyu-autoagent2)
+
+## 功能特性
+
+| 模块 | 说明 |
+| --- | --- |
+| 多账号管理 | 最多 5 个账号隔离运行，配置与数据彼此独立 |
+| 桌面控制台 | 统一管理 API Key、模型地址、模型名称、Cookie |
+| 登录能力 | 支持内嵌 WebView2 登录与浏览器兜底登录 |
+| 实时日志 | 启停状态、运行日志、账号日志路径一体展示 |
+| 打包发布 | 支持 Python worker、WinUI 桌面端、Inno Setup 安装包 |
+| 安装可运行 | 安装包已补齐 XAML / PRI 资源，避免安装后无法启动 |
+
+## 界面预览
+
+![UI Preview](./images/ui.png)
 
 ## 项目结构
 
 ```text
 .
-├─ main.py                         # Python 服务入口
+├─ main.py                         # Python 主服务入口
 ├─ worker_cli.py                   # 后台 worker CLI
 ├─ prompts/                        # 提示词模板
-├─ utils/                          # 环境、日志等通用工具
+├─ utils/                          # 通用工具
 ├─ scripts/                        # 辅助脚本
 ├─ chrome/                         # 离线 Chrome 运行时
 ├─ chromedriver/                   # chromedriver
 ├─ desktop/
 │  └─ XianyuDesktopApp/            # WinUI 3 桌面端
 ├─ installer/
-│  └─ inno/setup.iss               # Inno Setup 脚本
+│  └─ inno/setup.iss               # Inno Setup 安装脚本
 ├─ build_worker.ps1                # 构建 Python worker
 ├─ build_desktop.ps1               # 发布桌面端
-└─ build_all.ps1                   # 一键生成安装包
+├─ build_all.ps1                   # 一键生成安装包
+└─ release_notes.md                # GitHub Releases 发布说明模板
 ```
 
-## 功能概览
-
-### 1. 主服务能力
-
-- 自动处理闲鱼消息
-- 上下文记忆与提示词路由
-- 多专家场景提示词支持
-- 独立账号数据目录
-
-### 2. 桌面端能力
-
-- 新增/切换账号
-- 编辑 API Key、模型地址、模型名、Cookie
-- 启动/停止账号
-- 扫码登录更新 Cookie
-- 实时查看运行日志
-- 检查 GitHub Release 更新
-
-### 3. 打包与安装
-
-- Python worker 打包为 `XianyuWorker.exe`
-- WinUI 3 桌面端自包含发布
-- Inno Setup 生成可安装的 `Setup.exe`
-- 安装包内置运行所需 XAML 资源、离线浏览器和驱动
-
-## 运行环境
+## 环境要求
 
 ### Python
 
-- Python 3.10+，推荐 3.11
+- Python 3.10 及以上，推荐 3.11
 
 安装依赖：
 
@@ -70,16 +77,55 @@
 pip install -r requirements.txt
 ```
 
-### 桌面端
+### Windows 桌面端
 
-- Windows 10/11 x64
+- Windows 10 / 11 x64
 - .NET SDK 8
 - WinUI 3 / Windows App SDK 构建环境
-- Inno Setup 6（生成安装包时需要）
+- Inno Setup 6
 
-## 配置说明
+## 快速开始
 
-账号配置最终会写入：
+### 1. 启动 Python 主服务
+
+```powershell
+python main.py
+```
+
+### 2. 构建并运行桌面端
+
+```powershell
+cd desktop\XianyuDesktopApp
+dotnet build -c Release -p:Platform=x64
+```
+
+本地调试可直接运行：
+
+```powershell
+.\bin\x64\Release\net8.0-windows10.0.19041.0\win-x64\XianyuDesktopApp.exe
+```
+
+### 3. 生成安装包
+
+```powershell
+.\build_all.ps1
+```
+
+生成结果：
+
+```text
+installer\inno\Output\XianyuAutoAgent_1.0_Setup.exe
+```
+
+## 桌面端使用流程
+
+1. 启动桌面端
+2. 点击“新增账号”
+3. 填写 `API_KEY`、`MODEL_BASE_URL`、`MODEL_NAME`
+4. 使用“内嵌登录”或“浏览器兜底登录”获取 Cookie
+5. 保存配置后启动账号
+
+账号数据会自动写入：
 
 ```text
 %APPDATA%\XianyuAutoAgent\accounts\<account_name>\
@@ -93,35 +139,7 @@ pip install -r requirements.txt
 - `logs/`
 - `webview2/`
 
-常用配置项：
-
-- `API_KEY`
-- `MODEL_BASE_URL`
-- `MODEL_NAME`
-- `COOKIES_STR`
-
-## 本地开发
-
-### 1. 运行 Python 主服务
-
-```powershell
-python main.py
-```
-
-### 2. 运行桌面端
-
-```powershell
-cd desktop\XianyuDesktopApp
-dotnet build -c Release -p:Platform=x64
-```
-
-调试桌面端时建议直接运行生成的可执行文件：
-
-```powershell
-.\bin\x64\Release\net8.0-windows10.0.19041.0\win-x64\XianyuDesktopApp.exe
-```
-
-## 构建
+## 构建说明
 
 ### 构建 Python worker
 
@@ -147,7 +165,7 @@ dist\XianyuWorker.exe
 desktop\publish\app\XianyuDesktopApp\
 ```
 
-### 生成完整安装包
+### 完整生成安装包
 
 ```powershell
 .\build_all.ps1
@@ -159,60 +177,44 @@ desktop\publish\app\XianyuDesktopApp\
 installer\inno\Output\XianyuAutoAgent_1.0_Setup.exe
 ```
 
-## 安装说明
+## 常见问题
 
-安装完成后可直接启动 `XianyuDesktopApp.exe`。
+### 安装后无法启动
 
-如果你是从源码重新打包，当前版本已经额外处理了安装后启动所需资源：
+当前版本的打包脚本已经额外补齐以下资源：
 
 - `App.xbf`
 - `MainWindow.xbf`
 - `XianyuDesktopApp.pri`
-- `Controls/Services/Styles` 下的 XAML 编译资源
+- `Controls / Services / Styles` 下的 XAML 编译资源
 
-这部分逻辑在：
+相关逻辑位于：
 
 - [build_desktop.ps1](./build_desktop.ps1)
 - [installer/inno/setup.iss](./installer/inno/setup.iss)
 
-## 常见问题
-
-### 1. 安装后无法启动
-
-优先检查安装目录中是否存在：
-
-- `XianyuDesktopApp.pri`
-- `App.xbf`
-- `MainWindow.xbf`
-
-当前仓库版本的打包脚本已经包含这些资源。
-
-### 2. UI 发白、看不清、界面卡
+### UI 看不清、发白、界面偏卡
 
 当前桌面端已切换为：
 
 - 高对比浅色实体卡片
 - 低特效样式
-- 关闭重玻璃/Mica 背景链路
+- 关闭重玻璃 / Mica 背景链路
 
-如果仍然卡顿，优先检查日志区刷新频率和后台 worker 输出量。
+### 登录失败
 
-### 3. 登录失败
-
-可先尝试：
+可依次尝试：
 
 - 内嵌登录
 - 浏览器兜底登录
 
-Cookie 获取成功后会自动写回当前账号目录。
+获取成功后 Cookie 会自动写回当前账号目录。
 
-## 发布建议
+## Release
 
-推荐使用 GitHub Releases 分发安装包：
+最新安装包下载：
 
-1. 运行 `.\build_all.ps1`
-2. 上传 `installer\inno\Output\XianyuAutoAgent_1.0_Setup.exe`
-3. 直接使用仓库根目录的 `release_notes.md` 作为 Release 描述模板
+- [GitHub Releases](https://github.com/2836048681/xianyu-autoagent2/releases)
 
 ## 免责声明
 

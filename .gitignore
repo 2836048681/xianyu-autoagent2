@@ -1,4 +1,4 @@
-# Local dev / build
+# Local runtime / build
 __pycache__/
 *.py[cod]
 .venv/
@@ -6,27 +6,26 @@ venv/
 ENV/
 .env
 .env_*
+data/
 build/
 dist/
 desktop/**/bin/
 desktop/**/obj/
+desktop/**/publish/
 desktop/**/publish.binlog
 desktop/**/preprocessed.xml
 _install_test/
 test_account/
-{A4FAE077-DC5C-46EA-8031-C7DED81A55B6}.png
 
 # Installer output
 installer/inno/Output/
 
-# Python packaging
+# Packaging cache
 *.whl
 *.spec
 
-# Logs
+# Logs / temp
 *.log
-
-# Local backups / temp
 *.bak
 
 # Editor
