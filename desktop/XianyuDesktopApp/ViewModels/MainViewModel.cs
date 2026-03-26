@@ -104,7 +104,7 @@ public partial class MainViewModel : ObservableObject
         LoadLogsForSelectedAccount();
     }
 
-    public async Task StartSelectedAccountAsync()
+    public async Task StartSelectedAccountAsync(XamlRoot xamlRoot)
     {
         var account = GetSelectedAccount();
         if (account is null)
@@ -112,8 +112,29 @@ public partial class MainViewModel : ObservableObject
             return;
         }
 
-        await SaveSelectedAccountAsync();
-        await _workerHost.StartAsync(account);
+        try
+        {
+            RuntimeStatusText = $"正在启动账号 {account.Name} ...";
+            await SaveSelectedAccountAsync();
+            await _workerHost.StartAsync(account);
+
+            await Task.Delay(1200);
+            if (!_workerHost.IsRunning(account.Name))
+            {
+                LoadLogsForSelectedAccount();
+                await ShowInfoAsync(
+                    xamlRoot,
+                    "启动失败",
+                    string.IsNullOrWhiteSpace(LogText)
+                        ? "进程启动后立即退出，请检查账号配置、API_KEY、Cookie 和日志内容。"
+                        : $"进程启动后立即退出。最近日志：\n\n{TrimReleaseNotes(LogText)}");
+            }
+        }
+        catch (Exception ex)
+        {
+            RuntimeStatusText = $"账号 {account.Name} 启动失败";
+            await ShowInfoAsync(xamlRoot, "启动失败", ex.Message);
+        }
     }
 
     public async Task StopSelectedAccountAsync()
@@ -140,7 +161,7 @@ public partial class MainViewModel : ObservableObject
         await SaveSelectedAccountAsync();
         var wasRunning = _workerHost.IsRunning(account.Name);
         var result = await _loginCookieProvider.LoginEmbeddedAsync(account, xamlRoot);
-        await HandleLoginResultAsync(account, result, wasRunning);
+        await HandleLoginResultAsync(account, result, wasRunning, xamlRoot);
     }
 
     public async Task RunFallbackLoginAsync()
@@ -154,7 +175,7 @@ public partial class MainViewModel : ObservableObject
         await SaveSelectedAccountAsync();
         var wasRunning = _workerHost.IsRunning(account.Name);
         var result = await _loginCookieProvider.LoginFallbackAsync(account);
-        await HandleLoginResultAsync(account, result, wasRunning);
+        await HandleLoginResultAsync(account, result, wasRunning, null);
     }
 
     public async Task CheckForUpdatesAsync(XamlRoot xamlRoot)
@@ -269,10 +290,14 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
-    private async Task HandleLoginResultAsync(AccountProfile account, LoginResult result, bool wasRunning)
+    private async Task HandleLoginResultAsync(AccountProfile account, LoginResult result, bool wasRunning, XamlRoot? xamlRoot)
     {
         if (!result.Success)
         {
+            if (xamlRoot is not null)
+            {
+                await ShowInfoAsync(xamlRoot, "登录失败", string.IsNullOrWhiteSpace(result.ErrorMessage) ? "未能自动获取 Cookie。" : result.ErrorMessage);
+            }
             return;
         }
 
@@ -308,15 +333,33 @@ public partial class MainViewModel : ObservableObject
         LogText = _logBuilder.ToString();
     }
 
-    private static string TrimReleaseNotes(string releaseNotes)
+    private static string TrimReleaseNotes(string text)
     {
         const int maxLength = 480;
-        if (string.IsNullOrWhiteSpace(releaseNotes))
+        if (string.IsNullOrWhiteSpace(text))
         {
-            return "暂无更新说明。";
+            return "暂无可用内容。";
         }
 
-        var normalized = releaseNotes.Trim();
+        var normalized = text.Trim();
         return normalized.Length <= maxLength ? normalized : normalized[..maxLength] + "...";
+    }
+
+    private static async Task ShowInfoAsync(XamlRoot xamlRoot, string title, string content)
+    {
+        var dialog = new ContentDialog
+        {
+            Title = title,
+            Content = new TextBlock
+            {
+                Text = content,
+                TextWrapping = TextWrapping.WrapWholeWords,
+                MaxWidth = 560
+            },
+            CloseButtonText = "关闭",
+            XamlRoot = xamlRoot
+        };
+
+        await dialog.ShowAsync();
     }
 }

@@ -9,20 +9,32 @@
     Title="内嵌登录"
     PrimaryButtonText="取消"
     DefaultButton="Primary">
-    <Grid Width="820" Height="720">
+    <Grid Width="980" Height="820">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <TextBlock x:Name="StatusTextBlock"
-                   Text="请在下方页面扫码登录，检测到有效 Cookie 后会自动保存。"
-                   TextWrapping="WrapWholeWords"
-                   Foreground="{ThemeResource PrimaryTextBrush}"
-                   Margin="0,0,0,12" />
+        <Border Padding="12"
+                CornerRadius="12"
+                Background="{ThemeResource SecondaryGlassBrush}"
+                BorderBrush="{ThemeResource CardStrokeBrush}"
+                BorderThickness="1"
+                Margin="0,0,0,12">
+            <StackPanel Spacing="8">
+                <TextBlock x:Name="StatusTextBlock"
+                           Text="请在下方完整页面中登录。检测到有效 Cookie 后将自动保存并关闭窗口。"
+                           TextWrapping="WrapWholeWords"
+                           Foreground="{ThemeResource PrimaryTextBrush}" />
+                <TextBlock Text="如果页面显示不完整，请先最大化该窗口，或改用浏览器兜底登录。"
+                           TextWrapping="WrapWholeWords"
+                           Style="{ThemeResource CaptionTextBlockStyle}" />
+            </StackPanel>
+        </Border>
 
         <webview2:WebView2 x:Name="LoginWebView"
                            Grid.Row="1"
-                           Source="https://www.goofish.com/" />
+                           HorizontalAlignment="Stretch"
+                           VerticalAlignment="Stretch" />
     </Grid>
 </ContentDialog>

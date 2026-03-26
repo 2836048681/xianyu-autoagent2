@@ -29,7 +29,6 @@ public sealed partial class MainWindow : Window
         ExtendsContentIntoTitleBar = true;
         SetTitleBar(AppTitleBar);
         ConfigureWindow();
-        Activated += MainWindow_Activated;
         Closed += MainWindow_Closed;
         _ = InitializeAsync();
     }
@@ -48,12 +47,8 @@ public sealed partial class MainWindow : Window
         var hwnd = WindowNative.GetWindowHandle(this);
         var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hwnd);
         var appWindow = AppWindow.GetFromWindowId(windowId);
-        appWindow.Resize(new SizeInt32(1520, 980));
+        appWindow.Resize(new SizeInt32(1540, 980));
         appWindow.Title = "闲鱼自动化助手";
-    }
-
-    private void MainWindow_Activated(object sender, WindowActivatedEventArgs args)
-    {
     }
 
     private async void AddAccountButton_Click(object sender, RoutedEventArgs e)
@@ -84,7 +79,7 @@ public sealed partial class MainWindow : Window
 
     private async void SaveButton_Click(object sender, RoutedEventArgs e) => await _viewModel.SaveSelectedAccountAsync();
 
-    private async void StartAccountButton_Click(object sender, RoutedEventArgs e) => await _viewModel.StartSelectedAccountAsync();
+    private async void StartAccountButton_Click(object sender, RoutedEventArgs e) => await _viewModel.StartSelectedAccountAsync(Content.XamlRoot);
 
     private async void StopAccountButton_Click(object sender, RoutedEventArgs e) => await _viewModel.StopSelectedAccountAsync();
 

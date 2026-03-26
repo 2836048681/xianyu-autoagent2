@@ -39,6 +39,8 @@ public sealed class LoginCookieProvider : ILoginCookieProvider
             StandardErrorEncoding = System.Text.Encoding.UTF8,
         };
         startInfo.Environment["NON_INTERACTIVE"] = "1";
+        startInfo.Environment["PYTHONIOENCODING"] = "utf-8";
+        startInfo.Environment["PYTHONUTF8"] = "1";
         var process = Process.Start(startInfo) ?? throw new InvalidOperationException("无法启动兜底登录进程。");
 
         string? resultLine = null;
@@ -55,7 +57,11 @@ public sealed class LoginCookieProvider : ILoginCookieProvider
         await process.WaitForExitAsync();
         if (string.IsNullOrWhiteSpace(resultLine))
         {
-            return new LoginResult { Success = false, ErrorMessage = await process.StandardError.ReadToEndAsync() };
+            return new LoginResult
+            {
+                Success = false,
+                ErrorMessage = await process.StandardError.ReadToEndAsync()
+            };
         }
 
         using var doc = JsonDocument.Parse(resultLine);
