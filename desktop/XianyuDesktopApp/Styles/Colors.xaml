@@ -1,0 +1,37 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Color x:Key="AppPageBackgroundColor">#FFF5F7FB</Color>
+    <Color x:Key="WindowSurfaceColor">#FFFFFFFF</Color>
+    <Color x:Key="PrimaryCardColor">#FFFFFFFF</Color>
+    <Color x:Key="SecondaryCardColor">#FFF7F9FC</Color>
+    <Color x:Key="CardStrokeColor">#FFD7DFEA</Color>
+    <Color x:Key="StrongTextColor">#FF122033</Color>
+    <Color x:Key="MutedTextColor">#FF5F6B7A</Color>
+    <Color x:Key="AccentColor">#FF1D6FD8</Color>
+    <Color x:Key="AccentHoverColor">#FF175FB9</Color>
+    <Color x:Key="AccentSoftColor">#FFE8F1FF</Color>
+    <Color x:Key="AccentTextColor">#FF124C96</Color>
+    <Color x:Key="DividerColor">#FFE2E8F0</Color>
+    <Color x:Key="LogSurfaceColor">#FF1F2937</Color>
+    <Color x:Key="LogTextColor">#FFF3F4F6</Color>
+    <Color x:Key="DangerSoftColor">#FFFCE8E8</Color>
+    <Color x:Key="DangerTextColor">#FFB42318</Color>
+
+    <SolidColorBrush x:Key="AppPageBackgroundBrush" Color="{StaticResource AppPageBackgroundColor}" />
+    <SolidColorBrush x:Key="WindowSurfaceBrush" Color="{StaticResource WindowSurfaceColor}" />
+    <SolidColorBrush x:Key="PrimaryGlassBrush" Color="{StaticResource PrimaryCardColor}" />
+    <SolidColorBrush x:Key="SecondaryGlassBrush" Color="{StaticResource SecondaryCardColor}" />
+    <SolidColorBrush x:Key="CardStrokeBrush" Color="{StaticResource CardStrokeColor}" />
+    <SolidColorBrush x:Key="PrimaryTextBrush" Color="{StaticResource StrongTextColor}" />
+    <SolidColorBrush x:Key="SecondaryTextBrush" Color="{StaticResource MutedTextColor}" />
+    <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource AccentColor}" />
+    <SolidColorBrush x:Key="AccentHoverBrush" Color="{StaticResource AccentHoverColor}" />
+    <SolidColorBrush x:Key="AccentSoftBrush" Color="{StaticResource AccentSoftColor}" />
+    <SolidColorBrush x:Key="AccentTextBrush" Color="{StaticResource AccentTextColor}" />
+    <SolidColorBrush x:Key="DividerBrush" Color="{StaticResource DividerColor}" />
+    <SolidColorBrush x:Key="LogSurfaceBrush" Color="{StaticResource LogSurfaceColor}" />
+    <SolidColorBrush x:Key="LogTextBrush" Color="{StaticResource LogTextColor}" />
+    <SolidColorBrush x:Key="DangerSoftBrush" Color="{StaticResource DangerSoftColor}" />
+    <SolidColorBrush x:Key="DangerTextBrush" Color="{StaticResource DangerTextColor}" />
+</ResourceDictionary>

@@ -92,6 +92,20 @@ def get_data_dir() -> str:
     return path
 
 
+def get_logs_dir(app_dir: Optional[str] = None) -> str:
+    base_dir = app_dir or get_user_data_dir()
+    path = os.path.join(base_dir, "logs")
+    os.makedirs(path, exist_ok=True)
+    return path
+
+
+def get_webview2_dir(app_dir: Optional[str] = None) -> str:
+    base_dir = app_dir or get_user_data_dir()
+    path = os.path.join(base_dir, "webview2")
+    os.makedirs(path, exist_ok=True)
+    return path
+
+
 def get_prompts_dir() -> str:
     path = os.path.join(get_user_data_dir(), "prompts")
     os.makedirs(path, exist_ok=True)
@@ -117,6 +131,8 @@ def ensure_account_dir(name: str) -> str:
     os.makedirs(path, exist_ok=True)
     os.makedirs(os.path.join(path, "data"), exist_ok=True)
     os.makedirs(os.path.join(path, "prompts"), exist_ok=True)
+    os.makedirs(os.path.join(path, "logs"), exist_ok=True)
+    os.makedirs(os.path.join(path, "webview2"), exist_ok=True)
     return path
 
 

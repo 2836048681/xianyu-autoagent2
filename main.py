@@ -715,8 +715,24 @@ def run_service():
     asyncio.run(xianyuLive.main())
 
 
+def get_missing_critical_env():
+    critical_keys = ("API_KEY", "COOKIES_STR")
+    missing = []
+    for key in critical_keys:
+        value = os.getenv(key, "").strip()
+        if not value or value == "your_cookies_here":
+            missing.append(key)
+    return missing
+
+
 def check_and_complete_env():
     """检查并补全关键环境变量"""
+    if os.getenv("NON_INTERACTIVE", "").lower() in ("1", "true", "yes"):
+        missing = get_missing_critical_env()
+        if missing:
+            raise RuntimeError(f"missing required config: {', '.join(missing)}")
+        return
+
     # 定义关键变量及其默认无效值（占位符）
     critical_vars = {
         "API_KEY": "默认使用通义千问,apikey通过百炼模型平台获取",

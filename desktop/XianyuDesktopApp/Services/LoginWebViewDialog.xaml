@@ -1,0 +1,28 @@
+<ContentDialog
+    x:Class="XianyuDesktopApp.Services.LoginWebViewDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:webview2="using:Microsoft.UI.Xaml.Controls"
+    mc:Ignorable="d"
+    Title="内嵌登录"
+    PrimaryButtonText="取消"
+    DefaultButton="Primary">
+    <Grid Width="820" Height="720">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <TextBlock x:Name="StatusTextBlock"
+                   Text="请在下方页面扫码登录，检测到有效 Cookie 后会自动保存。"
+                   TextWrapping="WrapWholeWords"
+                   Foreground="{ThemeResource PrimaryTextBrush}"
+                   Margin="0,0,0,12" />
+
+        <webview2:WebView2 x:Name="LoginWebView"
+                           Grid.Row="1"
+                           Source="https://www.goofish.com/" />
+    </Grid>
+</ContentDialog>

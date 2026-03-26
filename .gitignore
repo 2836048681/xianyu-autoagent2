@@ -1,21 +1,33 @@
-﻿# Local dev / build
+# Local dev / build
 __pycache__/
 *.py[cod]
 .venv/
 venv/
 ENV/
 .env
+.env_*
 build/
 dist/
+desktop/**/bin/
+desktop/**/obj/
+desktop/**/publish.binlog
+desktop/**/preprocessed.xml
+_install_test/
+test_account/
+{A4FAE077-DC5C-46EA-8031-C7DED81A55B6}.png
 
 # Installer output
 installer/inno/Output/
 
-# Wheels
+# Python packaging
 *.whl
+*.spec
 
 # Logs
 *.log
+
+# Local backups / temp
+*.bak
 
 # Editor
 .vscode/

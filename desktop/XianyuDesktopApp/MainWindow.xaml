@@ -1,0 +1,249 @@
+<Window
+    x:Class="XianyuDesktopApp.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:XianyuDesktopApp.Controls"
+    xmlns:models="using:XianyuDesktopApp.Models"
+    mc:Ignorable="d"
+    Title="Xianyu AutoAgent Desktop">
+    <Border Background="{ThemeResource AppPageBackgroundBrush}">
+        <Grid Margin="16"
+              Background="{ThemeResource WindowSurfaceBrush}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Grid x:Name="AppTitleBar"
+                  Height="56"
+                  Padding="18,0,8,0"
+                  Background="{ThemeResource WindowSurfaceBrush}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="12">
+                    <Border Width="32"
+                            Height="32"
+                            CornerRadius="16"
+                            Background="{ThemeResource AccentSoftBrush}">
+                        <SymbolIcon Symbol="Shop" Foreground="{ThemeResource AccentTextBrush}" />
+                    </Border>
+                    <StackPanel>
+                        <TextBlock Text="Xianyu AutoAgent"
+                                   Style="{ThemeResource TitleTextBlockStyle}" />
+                        <TextBlock Text="桌面工作台 | 多账号管理 | 实时日志"
+                                   Style="{ThemeResource CaptionTextBlockStyle}" />
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center"
+                            Spacing="8">
+                    <Button Style="{ThemeResource GlassButtonStyle}"
+                            Content="检查更新"
+                            Click="CheckUpdateButton_Click" />
+                    <Button Style="{ThemeResource AccentGlassButtonStyle}"
+                            Content="新增账号"
+                            Click="AddAccountButton_Click" />
+                </StackPanel>
+            </Grid>
+
+            <Grid Grid.Row="1" Padding="0,16,0,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="250" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="300" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="340" />
+                </Grid.ColumnDefinitions>
+
+                <controls:GlassPanel Grid.Row="0" Grid.Column="0" Margin="0,0,14,14">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="账号列表" Style="{ThemeResource SectionTitleTextBlockStyle}" />
+                            <TextBlock Text="最多 5 个相互隔离的账号环境"
+                                       Style="{ThemeResource CaptionTextBlockStyle}" />
+                        </StackPanel>
+
+                        <ListView x:Name="AccountsListView"
+                                  Grid.Row="1"
+                                  Margin="0,16,0,0"
+                                  IsItemClickEnabled="True"
+                                  ItemClick="AccountsListView_ItemClick"
+                                  SelectionMode="Single"
+                                  ItemsSource="{x:Bind ViewModel.Accounts, Mode=OneWay}">
+                            <ListView.ItemTemplate>
+                                <DataTemplate x:DataType="models:AccountProfile">
+                                    <Border Padding="14"
+                                            CornerRadius="16"
+                                            Background="{ThemeResource SecondaryGlassBrush}"
+                                            BorderBrush="{ThemeResource CardStrokeBrush}"
+                                            BorderThickness="1">
+                                        <StackPanel Spacing="6">
+                                            <TextBlock Text="{x:Bind Name}"
+                                                       FontSize="16"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{ThemeResource PrimaryTextBrush}" />
+                                            <TextBlock Text="{x:Bind StatusText}"
+                                                       Style="{ThemeResource CaptionTextBlockStyle}" />
+                                            <TextBlock Text="{x:Bind CookieStatusText}"
+                                                       Style="{ThemeResource CaptionTextBlockStyle}" />
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </Grid>
+                </controls:GlassPanel>
+
+                <controls:GlassPanel Grid.Row="0" Grid.Column="1" Margin="0,0,14,14">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel Spacing="18">
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="账号配置" Style="{ThemeResource SectionTitleTextBlockStyle}" />
+                                <TextBlock Text="{x:Bind ViewModel.SelectedAccountSummary, Mode=OneWay}"
+                                           Style="{ThemeResource CaptionTextBlockStyle}" />
+                            </StackPanel>
+
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="API_KEY" Style="{ThemeResource FieldLabelTextBlockStyle}" />
+                                <TextBox Text="{x:Bind ViewModel.EditableAccount.ApiKey, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="MODEL_BASE_URL" Style="{ThemeResource FieldLabelTextBlockStyle}" />
+                                <TextBox Text="{x:Bind ViewModel.EditableAccount.ModelBaseUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="MODEL_NAME" Style="{ThemeResource FieldLabelTextBlockStyle}" />
+                                <TextBox Text="{x:Bind ViewModel.EditableAccount.ModelName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="COOKIES_STR" Style="{ThemeResource FieldLabelTextBlockStyle}" />
+                                <TextBox AcceptsReturn="True"
+                                         TextWrapping="Wrap"
+                                         Height="144"
+                                         Text="{x:Bind ViewModel.EditableAccount.CookieString, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <Button Style="{ThemeResource AccentGlassButtonStyle}"
+                                        Content="保存配置"
+                                        Click="SaveButton_Click" />
+                                <Button Style="{ThemeResource GlassButtonStyle}"
+                                        Content="打开提示词目录"
+                                        Click="OpenPromptsButton_Click" />
+                                <Button Style="{ThemeResource GlassButtonStyle}"
+                                        Content="打开账号目录"
+                                        Click="OpenAccountFolderButton_Click" />
+                            </StackPanel>
+                        </StackPanel>
+                    </ScrollViewer>
+                </controls:GlassPanel>
+
+                <controls:GlassPanel Grid.Row="0" Grid.Column="2" Margin="0,0,0,14">
+                    <StackPanel Spacing="18">
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="运行控制" Style="{ThemeResource SectionTitleTextBlockStyle}" />
+                            <TextBlock Text="{x:Bind ViewModel.RuntimeStatusText, Mode=OneWay}"
+                                       Style="{ThemeResource CaptionTextBlockStyle}" />
+                        </StackPanel>
+
+                        <Button Style="{ThemeResource AccentGlassButtonStyle}"
+                                Content="启动账号"
+                                Click="StartAccountButton_Click" />
+                        <Button Style="{ThemeResource GlassButtonStyle}"
+                                Content="停止账号"
+                                Click="StopAccountButton_Click" />
+                        <Button Style="{ThemeResource DangerGlassButtonStyle}"
+                                Content="全部停止"
+                                Click="StopAllButton_Click" />
+
+                        <Rectangle Height="1" Fill="{ThemeResource DividerBrush}" Margin="0,4,0,4" />
+
+                        <TextBlock Text="登录与 Cookie" Style="{ThemeResource SectionTitleTextBlockStyle}" />
+                        <TextBlock Text="优先使用内嵌 WebView2 登录，失败时可切换浏览器兜底登录。"
+                                   TextWrapping="WrapWholeWords"
+                                   Style="{ThemeResource CaptionTextBlockStyle}" />
+
+                        <Button Style="{ThemeResource AccentGlassButtonStyle}"
+                                Content="内嵌登录"
+                                Click="EmbeddedLoginButton_Click" />
+                        <Button Style="{ThemeResource GlassButtonStyle}"
+                                Content="浏览器兜底登录"
+                                Click="FallbackLoginButton_Click" />
+
+                        <Rectangle Height="1" Fill="{ThemeResource DividerBrush}" Margin="0,4,0,4" />
+
+                        <TextBlock Text="诊断工具" Style="{ThemeResource SectionTitleTextBlockStyle}" />
+                        <Button Style="{ThemeResource GlassButtonStyle}"
+                                Content="打开日志目录"
+                                Click="OpenLogsButton_Click" />
+                    </StackPanel>
+                </controls:GlassPanel>
+
+                <controls:GlassPanel Grid.Row="1" Grid.ColumnSpan="3">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <Grid ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="运行日志" Style="{ThemeResource SectionTitleTextBlockStyle}" />
+                                <TextBlock Text="{x:Bind ViewModel.LogCaptionText, Mode=OneWay}"
+                                           Style="{ThemeResource CaptionTextBlockStyle}" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                                <Button Style="{ThemeResource GlassButtonStyle}"
+                                        Content="复制日志"
+                                        Click="CopyLogsButton_Click" />
+                                <Button Style="{ThemeResource GlassButtonStyle}"
+                                        Content="清空视图"
+                                        Click="ClearLogsButton_Click" />
+                            </StackPanel>
+                        </Grid>
+
+                        <Border Grid.Row="1"
+                                Margin="0,16,0,0"
+                                CornerRadius="18"
+                                Background="{ThemeResource LogSurfaceBrush}"
+                                BorderBrush="{ThemeResource CardStrokeBrush}"
+                                BorderThickness="1"
+                                Padding="18">
+                            <ScrollViewer x:Name="LogScrollViewer" VerticalScrollBarVisibility="Auto">
+                                <TextBlock x:Name="LogsTextBlock"
+                                           Text="{x:Bind ViewModel.LogText, Mode=OneWay}"
+                                           Foreground="{ThemeResource LogTextBrush}"
+                                           FontFamily="Consolas"
+                                           FontSize="13"
+                                           TextWrapping="WrapWholeWords" />
+                            </ScrollViewer>
+                        </Border>
+                    </Grid>
+                </controls:GlassPanel>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>

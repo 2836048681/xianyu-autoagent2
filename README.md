@@ -1,159 +1,220 @@
-﻿# Xianyu AutoAgent 2.0 - 闲鱼智能客服机器人系统
-本项目基于 https://github.com/shaxiu/XianyuAutoAgent 改版。
-[![Python Version](https://img.shields.io/badge/python-3.8%2B-blue)](https://www.python.org/) [![LLM Powered](https://img.shields.io/badge/LLM-powered-FF6F61)](https://platform.openai.com/)
+# Xianyu AutoAgent
 
-专为闲鱼平台打造的 AI 值守方案，支持多专家协同、智能议价、上下文感知对话与自动化回复。
+面向闲鱼场景的自动化值守项目，支持：
 
-## 主要特性
-- 多专家协同与意图路由
-- 上下文感知对话与会话记忆
-- 议价与技术支持场景处理
-- 基础日志输出与运行监控
-- GUI 可视化运行、扫码登录与实时日志
-- 离线打包（内置 Chrome + chromedriver），安装后可独立运行
+- Python 主服务自动处理消息与上下文
+- 多账号隔离运行
+- WinUI 3 桌面端配置与控制台
+- 内嵌 WebView2 / 浏览器兜底登录
+- 离线打包与 Windows 安装包分发
 
-## 目录结构
+仓库地址：
 
-```
+- 原始参考项目：[shaxiu/XianyuAutoAgent](https://github.com/shaxiu/XianyuAutoAgent)
+- 当前仓库：[2836048681/xianyu-autoagent2](https://github.com/2836048681/xianyu-autoagent2)
+
+## 项目结构
+
+```text
 .
-├─ gui_app.py                # 可视化入口
-├─ main.py                   # 服务入口
-├─ utils/
-│  ├─ env_utils.py            # 离线配置与用户数据目录
-│  └─ playwright_login.py       # 扫码登录获取 Cookie
-├─ prompts/                   # 提示词模板（自动复制到用户目录）
-├─ chrome/                    # 离线浏览器（打包/安装时内置）
-├─ chromedriver/              # 离线驱动（打包/安装时内置）
-├─ build_exe.ps1              # 单文件 EXE 构建
-├─ build_all.ps1              # EXE + 安装包一键构建
-└─ installer/inno/setup.iss   # Inno Setup 脚本
+├─ main.py                         # Python 服务入口
+├─ worker_cli.py                   # 后台 worker CLI
+├─ gui_app.py                      # 旧 GUI 入口
+├─ prompts/                        # 提示词模板
+├─ utils/                          # 环境、日志等通用工具
+├─ scripts/                        # 辅助脚本
+├─ chrome/                         # 离线 Chrome 运行时
+├─ chromedriver/                   # chromedriver
+├─ desktop/
+│  └─ XianyuDesktopApp/            # WinUI 3 桌面端
+├─ installer/
+│  └─ inno/setup.iss               # Inno Setup 脚本
+├─ build_worker.ps1                # 构建 Python worker
+├─ build_desktop.ps1               # 发布桌面端
+└─ build_all.ps1                   # 一键生成安装包
 ```
 
-## 运行与配置（优先使用 Release 最新版）
-请优先前往 Release 页面下载最新安装包并使用：  
-https://github.com/2836048681/xianyu-autoagent2/releases
+## 功能概览
 
-安装完成后，通过桌面快捷方式启动即可。
-如需源码方式运行（开发/调试用途），再参考下方“环境变量说明”与“离线打包与安装”。
+### 1. 主服务能力
 
-## 多账号并行
-支持最多 5 个账号同时运行。每个账号独立 `.env` / `prompts` / `data`，互不影响。 
-在界面中新增账号后，配置并启动即可并行运行。
+- 自动处理闲鱼消息
+- 上下文记忆与提示词路由
+- 多专家场景提示词支持
+- 独立账号数据目录
 
-### 多账号使用说明
-1. 点击 “新增账号”，输入账号名称（建议 `account1`、`account2`）。
-2. 选择账号后填写 `API_KEY` / `MODEL_BASE_URL` / `MODEL_NAME` / `COOKIES_STR`。
-3. 点击 “扫码登录并更新 Cookie”，完成登录后保存配置。
-4. 点击 “启动当前账号”，即可并行运行。
-5. 账号之间互不影响，配置与数据分别存放在：
-   `%APPDATA%\XianyuAutoAgent\accounts\<account>\`
+### 2. 桌面端能力
 
-### 多账号隔离测试脚本
-用于验证各账号配置、数据路径是否独立（不启动服务）：
+- 新增/切换账号
+- 编辑 API Key、模型地址、模型名、Cookie
+- 启动/停止账号
+- 扫码登录更新 Cookie
+- 实时查看运行日志
+- 检查 GitHub Release 更新
+
+### 3. 打包与安装
+
+- Python worker 打包为 `XianyuWorker.exe`
+- WinUI 3 桌面端自包含发布
+- Inno Setup 生成可安装的 `Setup.exe`
+- 安装包内置运行所需 XAML 资源、离线浏览器和驱动
+
+## 运行环境
+
+### Python
+
+- Python 3.10+，推荐 3.11
+
+安装依赖：
 
 ```powershell
-python scripts\test_multi_account.py --accounts account1,account2
+pip install -r requirements.txt
 ```
 
-输出会显示每个账号的 `.env`、`prompts`、`data` 路径与示例配置。
+### 桌面端
 
-## 环境变量说明
+- Windows 10/11 x64
+- .NET SDK 8
+- WinUI 3 / Windows App SDK 构建环境
+- Inno Setup 6（生成安装包时需要）
 
-必填：
-- `API_KEY`：模型平台 API Key
-- `COOKIES_STR`：闲鱼 Web Cookie（可通过 GUI 扫码获取）
+## 配置说明
 
-可选：
-- `MODEL_BASE_URL`：模型服务地址，默认 `https://dashscope.aliyuncs.com/compatible-mode/v1`
-- `MODEL_NAME`：模型名称，默认 `qwen-max`
-- `TOGGLE_KEYWORDS`：人工接管切换关键字，默认 `。`
-- `SIMULATE_HUMAN_TYPING`：模拟人工输入延迟，默认 `False`
-- `HEARTBEAT_INTERVAL` / `HEARTBEAT_TIMEOUT`
-- `TOKEN_REFRESH_INTERVAL` / `TOKEN_RETRY_INTERVAL`
-- `MANUAL_MODE_TIMEOUT`
-- `MESSAGE_EXPIRE_TIME`
+账号配置最终会写入：
 
-## 离线打包与安装（Windows）
-### 1. 准备离线 Chrome
-
-将离线浏览器放到仓库根目录：
-
-```
-chrome\chrome.exe
-chromedriver\chromedriver.exe
+```text
+%APPDATA%\XianyuAutoAgent\accounts\<account_name>\
 ```
 
-### 2. 构建单文件 EXE
+每个账号独立保存：
+
+- `.env`
+- `prompts/`
+- `data/`
+- `logs/`
+- `webview2/`
+
+常用配置项：
+
+- `API_KEY`
+- `MODEL_BASE_URL`
+- `MODEL_NAME`
+- `COOKIES_STR`
+
+## 本地开发
+
+### 1. 运行 Python 主服务
 
 ```powershell
-.\build_exe.ps1
+python main.py
 ```
 
-产物：
-```
-dist\v1.exe
+### 2. 运行桌面端
+
+```powershell
+cd desktop\XianyuDesktopApp
+dotnet build -c Release -p:Platform=x64
 ```
 
-### 3. 生成安装包（Inno Setup）
+调试桌面端时建议直接运行生成的可执行文件：
+
+```powershell
+.\bin\x64\Release\net8.0-windows10.0.19041.0\win-x64\XianyuDesktopApp.exe
+```
+
+## 构建
+
+### 构建 Python worker
+
+```powershell
+.\build_worker.ps1
+```
+
+输出：
+
+```text
+dist\XianyuWorker.exe
+```
+
+### 发布桌面端
+
+```powershell
+.\build_desktop.ps1
+```
+
+输出：
+
+```text
+desktop\publish\app\XianyuDesktopApp\
+```
+
+### 生成完整安装包
+
 ```powershell
 .\build_all.ps1
 ```
 
-产物：
-```
-installer\inno\Output\XianyuAutoAgent_0.1_Setup.exe
-```
+输出：
 
-安装特性：
-- 安装目录默认 `D:\rickxy`
-- 内置 `chrome` / `chromedriver`
-- 可选创建桌面快捷方式
-- 可选开机自启
-
-## 用户数据与离线运行
-运行后自动生成用户目录：
-
-```
-%APPDATA%\XianyuAutoAgent
+```text
+installer\inno\Output\XianyuAutoAgent_1.0_Setup.exe
 ```
 
-其中包含：
-- `.env`（配置文件）
-- `prompts/`（自动复制模板）
-- `data/`（会话数据库）
+## 安装说明
 
-因此 EXE 或安装包可单独运行，不要求同级目录放置 `.env` 或 `prompts`。
+安装完成后可直接启动 `XianyuDesktopApp.exe`。
 
-## 提示词模板
-`prompts` 目录内包含：
+如果你是从源码重新打包，当前版本已经额外处理了安装后启动所需资源：
 
-- `classify_prompt.txt`
-- `price_prompt.txt`
-- `tech_prompt.txt`
-- `default_prompt.txt`
+- `App.xbf`
+- `MainWindow.xbf`
+- `XianyuDesktopApp.pri`
+- `Controls/Services/Styles` 下的 XAML 编译资源
 
-首次运行会自动复制到用户目录，可在用户目录中修改模板。
+这部分逻辑在：
 
-## Release 说明（v0.1）
-主要更新：
-- 新增 GUI 可视化控制台（扫码登录、配置管理、实时日志）
-- 支持离线登录，Cookie 自动更新（内置 Chrome + chromedriver）
-- 单文件 `v1.exe` 与 Inno Setup 安装包
-- 用户数据独立存储在 `%APPDATA%\XianyuAutoAgent`
-- 一键构建脚本 `build_exe.ps1` / `build_all.ps1`
+- [build_desktop.ps1](./build_desktop.ps1)
+- [installer/inno/setup.iss](./installer/inno/setup.iss)
 
-## 界面预览
+## 常见问题
 
-![UI](./images/ui.png)
+### 1. 安装后无法启动
 
-已知限制：
-- 当前仅提供 Windows 64 位离线包
-- 首次启动需要配置模型 API
+优先检查安装目录中是否存在：
 
-## 贡献
+- `XianyuDesktopApp.pri`
+- `App.xbf`
+- `MainWindow.xbf`
 
-欢迎提交 Issue 或 PR。
+当前仓库版本的打包脚本已经包含这些资源。
+
+### 2. UI 发白、看不清、界面卡
+
+当前桌面端已切换为：
+
+- 高对比浅色实体卡片
+- 低特效样式
+- 关闭重玻璃/Mica 背景链路
+
+如果仍然卡顿，优先检查日志区刷新频率和后台 worker 输出量。
+
+### 3. 登录失败
+
+可先尝试：
+
+- 内嵌登录
+- 浏览器兜底登录
+
+Cookie 获取成功后会自动写回当前账号目录。
+
+## 发布建议
+
+推荐使用 GitHub Releases 分发安装包：
+
+1. 运行 `.\build_all.ps1`
+2. 上传 `installer\inno\Output\XianyuAutoAgent_1.0_Setup.exe`
+3. 在 Release 说明中标注版本变化
 
 ## 免责声明
 
-本项目仅供学习交流使用，若涉及侵权请联系作者删除。
+本项目仅供学习与交流使用，请自行评估平台规则、账号风险与合规要求。

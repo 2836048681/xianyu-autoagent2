@@ -12,8 +12,8 @@ if (-not (Test-Path $InnoExe)) {
     throw "ISCC.exe not found: $InnoExe"
 }
 
-Write-Host "Step 1/2: Build v1.exe via PyInstaller"
-& $PythonExe -m PyInstaller --onefile --noconsole --name v1 --add-data "prompts;prompts" --add-data "chrome;chrome" --add-data "chromedriver;chromedriver" --hidden-import tkinter --hidden-import tkinter.ttk --hidden-import playwright --collect-all playwright gui_app.py
+Write-Host "Step 1/2: Build desktop app and worker"
+& $PSScriptRoot\build_desktop.ps1 -PythonExe $PythonExe
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 Write-Host "Step 2/2: Build installer via Inno Setup"
