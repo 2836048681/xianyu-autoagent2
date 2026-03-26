@@ -25,6 +25,9 @@ public partial class MainViewModel : ObservableObject
     private AccountProfile editableAccount = new();
 
     [ObservableProperty]
+    private string selectedAccountTitle = "账号工作区";
+
+    [ObservableProperty]
     private string selectedAccountSummary = "请选择一个账号";
 
     [ObservableProperty]
@@ -74,6 +77,7 @@ public partial class MainViewModel : ObservableObject
         }
 
         EditableAccount = selected.Clone();
+        SelectedAccountTitle = $"账号工作区 · {selected.Name}";
         SelectedAccountSummary = $"{selected.Name} | {selected.AccountDir}";
         RuntimeStatusText = selected.IsRunning ? $"账号 {selected.Name} 正在运行" : $"账号 {selected.Name} 已停止";
         LoadLogsForSelectedAccount();
@@ -112,13 +116,25 @@ public partial class MainViewModel : ObservableObject
             return;
         }
 
+        if (string.IsNullOrWhiteSpace(EditableAccount.ApiKey))
+        {
+            await ShowInfoAsync(xamlRoot, "无法启动", "请先填写 API_KEY。");
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(EditableAccount.CookieString))
+        {
+            await ShowInfoAsync(xamlRoot, "无法启动", "请先完成登录或填写 Cookie。");
+            return;
+        }
+
         try
         {
             RuntimeStatusText = $"正在启动账号 {account.Name} ...";
             await SaveSelectedAccountAsync();
             await _workerHost.StartAsync(account);
 
-            await Task.Delay(1200);
+            await Task.Delay(1500);
             if (!_workerHost.IsRunning(account.Name))
             {
                 LoadLogsForSelectedAccount();
@@ -126,8 +142,8 @@ public partial class MainViewModel : ObservableObject
                     xamlRoot,
                     "启动失败",
                     string.IsNullOrWhiteSpace(LogText)
-                        ? "进程启动后立即退出，请检查账号配置、API_KEY、Cookie 和日志内容。"
-                        : $"进程启动后立即退出。最近日志：\n\n{TrimReleaseNotes(LogText)}");
+                        ? "进程启动后立即退出，请检查账号配置、API Key、Cookie 和日志内容。"
+                        : $"进程启动后立即退出。最近日志：\n\n{TrimText(LogText)}");
             }
         }
         catch (Exception ex)
@@ -182,13 +198,18 @@ public partial class MainViewModel : ObservableObject
     {
         var info = await _releaseUpdateService.CheckForUpdatesAsync();
         var content = info.HasUpdate
-            ? $"发现新版本：{info.LatestVersion}\n发布时间：{info.PublishedAt:yyyy-MM-dd HH:mm}\n\n{TrimReleaseNotes(info.ReleaseNotes)}"
+            ? $"发现新版本：{info.LatestVersion}\n发布时间：{info.PublishedAt:yyyy-MM-dd HH:mm}\n\n{TrimText(info.ReleaseNotes)}"
             : $"当前已是最新版本：{info.CurrentVersion}";
 
         var dialog = new ContentDialog
         {
             Title = "检查更新",
-            Content = new TextBlock { Text = content, TextWrapping = TextWrapping.WrapWholeWords, MaxWidth = 560 },
+            Content = new TextBlock
+            {
+                Text = content,
+                TextWrapping = TextWrapping.WrapWholeWords,
+                MaxWidth = 560
+            },
             PrimaryButtonText = info.HasUpdate && !string.IsNullOrWhiteSpace(info.DownloadUrl) ? "打开下载页面" : "确定",
             CloseButtonText = "关闭",
             XamlRoot = xamlRoot
@@ -296,7 +317,10 @@ public partial class MainViewModel : ObservableObject
         {
             if (xamlRoot is not null)
             {
-                await ShowInfoAsync(xamlRoot, "登录失败", string.IsNullOrWhiteSpace(result.ErrorMessage) ? "未能自动获取 Cookie。" : result.ErrorMessage);
+                await ShowInfoAsync(
+                    xamlRoot,
+                    "登录失败",
+                    string.IsNullOrWhiteSpace(result.ErrorMessage) ? "未能自动获取 Cookie。" : result.ErrorMessage);
             }
             return;
         }
@@ -333,7 +357,7 @@ public partial class MainViewModel : ObservableObject
         LogText = _logBuilder.ToString();
     }
 
-    private static string TrimReleaseNotes(string text)
+    private static string TrimText(string text)
     {
         const int maxLength = 480;
         if (string.IsNullOrWhiteSpace(text))
