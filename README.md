@@ -19,7 +19,6 @@
 .
 ├─ main.py                         # Python 服务入口
 ├─ worker_cli.py                   # 后台 worker CLI
-├─ gui_app.py                      # 旧 GUI 入口
 ├─ prompts/                        # 提示词模板
 ├─ utils/                          # 环境、日志等通用工具
 ├─ scripts/                        # 辅助脚本
@@ -213,7 +212,7 @@ Cookie 获取成功后会自动写回当前账号目录。
 
 1. 运行 `.\build_all.ps1`
 2. 上传 `installer\inno\Output\XianyuAutoAgent_1.0_Setup.exe`
-3. 在 Release 说明中标注版本变化
+3. 直接使用仓库根目录的 `release_notes.md` 作为 Release 描述模板
 
 ## 免责声明
 
