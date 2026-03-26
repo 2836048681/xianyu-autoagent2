@@ -41,7 +41,7 @@ public sealed class LoginCookieProvider : ILoginCookieProvider
         startInfo.Environment["NON_INTERACTIVE"] = "1";
         startInfo.Environment["PYTHONIOENCODING"] = "utf-8";
         startInfo.Environment["PYTHONUTF8"] = "1";
-        var process = Process.Start(startInfo) ?? throw new InvalidOperationException("无法启动兜底登录进程。");
+        var process = Process.Start(startInfo) ?? throw new InvalidOperationException("Failed to launch fallback login process.");
 
         string? resultLine = null;
         while (!process.StandardOutput.EndOfStream)

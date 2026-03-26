@@ -6,8 +6,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:webview2="using:Microsoft.UI.Xaml.Controls"
     mc:Ignorable="d"
-    Title="内嵌登录"
-    PrimaryButtonText="取消"
+    Title="Embedded login"
+    PrimaryButtonText="Cancel"
     DefaultButton="Primary">
     <Grid Width="980" Height="820">
         <Grid.RowDefinitions>
@@ -23,10 +23,10 @@
                 Margin="0,0,0,12">
             <StackPanel Spacing="8">
                 <TextBlock x:Name="StatusTextBlock"
-                           Text="请在下方完整页面中登录。检测到有效 Cookie 后将自动保存并关闭窗口。"
+                           Text="Complete login in the page below. The dialog will save cookies automatically once valid session cookies are detected."
                            TextWrapping="WrapWholeWords"
                            Foreground="{ThemeResource PrimaryTextBrush}" />
-                <TextBlock Text="如果页面显示不完整，请先最大化该窗口，或改用浏览器兜底登录。"
+                <TextBlock Text="If the page looks incomplete, maximize the window first or switch to fallback browser login."
                            TextWrapping="WrapWholeWords"
                            Style="{ThemeResource CaptionTextBlockStyle}" />
             </StackPanel>

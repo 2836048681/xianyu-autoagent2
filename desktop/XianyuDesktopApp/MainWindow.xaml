@@ -35,7 +35,7 @@
                     <StackPanel>
                         <TextBlock Text="Xianyu AutoAgent"
                                    Style="{ThemeResource TitleTextBlockStyle}" />
-                        <TextBlock Text="桌面工作台 | 多账号管理 | 实时日志"
+                        <TextBlock Text="Desktop workspace | Multi-account control | Live logs"
                                    Style="{ThemeResource CaptionTextBlockStyle}" />
                     </StackPanel>
                 </StackPanel>
@@ -45,10 +45,10 @@
                             VerticalAlignment="Center"
                             Spacing="8">
                     <Button Style="{ThemeResource GlassButtonStyle}"
-                            Content="检查更新"
+                            Content="Check updates"
                             Click="CheckUpdateButton_Click" />
                     <Button Style="{ThemeResource AccentGlassButtonStyle}"
-                            Content="新增账号"
+                            Content="Add account"
                             Click="AddAccountButton_Click" />
                 </StackPanel>
             </Grid>
@@ -67,8 +67,8 @@
                         </Grid.RowDefinitions>
 
                         <StackPanel Spacing="6">
-                            <TextBlock Text="账号列表" Style="{ThemeResource SectionTitleTextBlockStyle}" />
-                            <TextBlock Text="最多 5 个相互隔离的账号环境"
+                            <TextBlock Text="Accounts" Style="{ThemeResource SectionTitleTextBlockStyle}" />
+                            <TextBlock Text="Up to 5 isolated account workspaces"
                                        Style="{ThemeResource CaptionTextBlockStyle}" />
                         </StackPanel>
 
@@ -119,7 +119,7 @@
                         </StackPanel>
 
                         <TabView Grid.Row="1" Margin="0,16,0,0">
-                            <TabViewItem Header="配置">
+                            <TabViewItem Header="Config">
                                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                                     <StackPanel Spacing="18" Padding="0,10,0,10">
                                         <StackPanel Spacing="8">
@@ -147,23 +147,23 @@
 
                                         <StackPanel Orientation="Horizontal" Spacing="10">
                                             <Button Style="{ThemeResource AccentGlassButtonStyle}"
-                                                    Content="保存配置"
+                                                    Content="Save config"
                                                     Click="SaveButton_Click" />
                                             <Button Style="{ThemeResource GlassButtonStyle}"
-                                                    Content="打开提示词目录"
+                                                    Content="Open prompts"
                                                     Click="OpenPromptsButton_Click" />
                                             <Button Style="{ThemeResource GlassButtonStyle}"
-                                                    Content="打开账号目录"
+                                                    Content="Open account folder"
                                                     Click="OpenAccountFolderButton_Click" />
                                         </StackPanel>
                                     </StackPanel>
                                 </ScrollViewer>
                             </TabViewItem>
 
-                            <TabViewItem Header="运行">
+                            <TabViewItem Header="Run">
                                 <StackPanel Spacing="18" Padding="0,10,0,10">
                                     <StackPanel Spacing="6">
-                                        <TextBlock Text="运行状态" Style="{ThemeResource SectionTitleTextBlockStyle}" />
+                                        <TextBlock Text="Runtime status" Style="{ThemeResource SectionTitleTextBlockStyle}" />
                                         <TextBlock Text="{x:Bind ViewModel.RuntimeStatusText, Mode=OneWay}"
                                                    Style="{ThemeResource CaptionTextBlockStyle}"
                                                    TextWrapping="WrapWholeWords" />
@@ -171,36 +171,36 @@
 
                                     <StackPanel Orientation="Horizontal" Spacing="10">
                                         <Button Style="{ThemeResource AccentGlassButtonStyle}"
-                                                Content="启动账号"
+                                                Content="Start account"
                                                 Click="StartAccountButton_Click" />
                                         <Button Style="{ThemeResource GlassButtonStyle}"
-                                                Content="停止账号"
+                                                Content="Stop account"
                                                 Click="StopAccountButton_Click" />
                                         <Button Style="{ThemeResource DangerGlassButtonStyle}"
-                                                Content="全部停止"
+                                                Content="Stop all"
                                                 Click="StopAllButton_Click" />
                                     </StackPanel>
                                 </StackPanel>
                             </TabViewItem>
 
-                            <TabViewItem Header="登录">
+                            <TabViewItem Header="Login">
                                 <StackPanel Spacing="18" Padding="0,10,0,10">
-                                    <TextBlock Text="优先使用内嵌 WebView2 登录。若页面显示不完整或无法自动抓取 Cookie，请切换浏览器兜底登录。"
+                                    <TextBlock Text="Use embedded WebView2 first. If the page is incomplete or cookies are not captured automatically, switch to fallback browser login."
                                                Style="{ThemeResource CaptionTextBlockStyle}"
                                                TextWrapping="WrapWholeWords" />
 
                                     <StackPanel Orientation="Horizontal" Spacing="10">
                                         <Button Style="{ThemeResource AccentGlassButtonStyle}"
-                                                Content="内嵌登录"
+                                                Content="Embedded login"
                                                 Click="EmbeddedLoginButton_Click" />
                                         <Button Style="{ThemeResource GlassButtonStyle}"
-                                                Content="浏览器兜底登录"
+                                                Content="Fallback browser login"
                                                 Click="FallbackLoginButton_Click" />
                                     </StackPanel>
                                 </StackPanel>
                             </TabViewItem>
 
-                            <TabViewItem Header="日志">
+                            <TabViewItem Header="Logs">
                                 <Grid Padding="0,10,0,10">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto" />
@@ -214,7 +214,7 @@
                                         </Grid.ColumnDefinitions>
 
                                         <StackPanel Spacing="4">
-                                            <TextBlock Text="运行日志" Style="{ThemeResource SectionTitleTextBlockStyle}" />
+                                            <TextBlock Text="Runtime log" Style="{ThemeResource SectionTitleTextBlockStyle}" />
                                             <TextBlock Text="{x:Bind ViewModel.LogCaptionText, Mode=OneWay}"
                                                        Style="{ThemeResource CaptionTextBlockStyle}"
                                                        TextWrapping="WrapWholeWords" />
@@ -222,13 +222,13 @@
 
                                         <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
                                             <Button Style="{ThemeResource GlassButtonStyle}"
-                                                    Content="打开日志目录"
+                                                    Content="Open log folder"
                                                     Click="OpenLogsButton_Click" />
                                             <Button Style="{ThemeResource GlassButtonStyle}"
-                                                    Content="复制日志"
+                                                    Content="Copy logs"
                                                     Click="CopyLogsButton_Click" />
                                             <Button Style="{ThemeResource GlassButtonStyle}"
-                                                    Content="清空视图"
+                                                    Content="Clear view"
                                                     Click="ClearLogsButton_Click" />
                                         </StackPanel>
                                     </Grid>

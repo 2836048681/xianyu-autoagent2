@@ -31,9 +31,9 @@ public partial class AccountProfile : ObservableObject
     [ObservableProperty]
     private bool isRunning;
 
-    public string StatusText => IsRunning ? "运行中" : "已停止";
+    public string StatusText => IsRunning ? "Running" : "Stopped";
 
-    public string CookieStatusText => string.IsNullOrWhiteSpace(CookieString) ? "Cookie 未配置" : "Cookie 已就绪";
+    public string CookieStatusText => string.IsNullOrWhiteSpace(CookieString) ? "Cookie missing" : "Cookie ready";
 
     partial void OnIsRunningChanged(bool value) => OnPropertyChanged(nameof(StatusText));
 

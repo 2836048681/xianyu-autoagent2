@@ -51,14 +51,14 @@ public sealed partial class LoginWebViewDialog : ContentDialog
     {
         if (!args.IsSuccess)
         {
-            StatusTextBlock.Text = $"页面加载失败：{args.WebErrorStatus}";
+            StatusTextBlock.Text = $"Page load failed: {args.WebErrorStatus}";
             return;
         }
 
         var uri = sender.Source ?? string.Empty;
         StatusTextBlock.Text = uri.Contains("login", StringComparison.OrdinalIgnoreCase)
-            ? "请完成登录，系统会自动检测 Cookie。"
-            : "页面已加载，正在持续检测 Cookie...";
+            ? "Login page loaded. Waiting for valid cookies..."
+            : "Page loaded. Monitoring session cookies...";
     }
 
     private async Task PollCookiesLoopAsync(CancellationToken cancellationToken)
@@ -70,7 +70,7 @@ public sealed partial class LoginWebViewDialog : ContentDialog
                 var cookieString = await TryExtractCookieStringAsync();
                 if (!string.IsNullOrWhiteSpace(cookieString))
                 {
-                    StatusTextBlock.Text = "已检测到有效 Cookie，正在保存...";
+                    StatusTextBlock.Text = "Valid cookies detected. Saving session...";
                     _result = new LoginResult
                     {
                         Success = true,
@@ -82,7 +82,7 @@ public sealed partial class LoginWebViewDialog : ContentDialog
             }
             catch (Exception ex)
             {
-                StatusTextBlock.Text = $"Cookie 检测失败：{ex.Message}";
+                StatusTextBlock.Text = $"Cookie detection failed: {ex.Message}";
             }
 
             await Task.Delay(1500, cancellationToken);

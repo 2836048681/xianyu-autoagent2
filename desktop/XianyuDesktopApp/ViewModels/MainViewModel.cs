@@ -25,16 +25,16 @@ public partial class MainViewModel : ObservableObject
     private AccountProfile editableAccount = new();
 
     [ObservableProperty]
-    private string selectedAccountTitle = "账号工作区";
+    private string selectedAccountTitle = "Account workspace";
 
     [ObservableProperty]
-    private string selectedAccountSummary = "请选择一个账号";
+    private string selectedAccountSummary = "Select an account";
 
     [ObservableProperty]
-    private string runtimeStatusText = "当前未运行";
+    private string runtimeStatusText = "Idle";
 
     [ObservableProperty]
-    private string logCaptionText = "此处展示当前账号日志";
+    private string logCaptionText = "Runtime logs for the selected account appear here";
 
     [ObservableProperty]
     private string logText = string.Empty;
@@ -77,9 +77,9 @@ public partial class MainViewModel : ObservableObject
         }
 
         EditableAccount = selected.Clone();
-        SelectedAccountTitle = $"账号工作区 · {selected.Name}";
+        SelectedAccountTitle = $"Account workspace · {selected.Name}";
         SelectedAccountSummary = $"{selected.Name} | {selected.AccountDir}";
-        RuntimeStatusText = selected.IsRunning ? $"账号 {selected.Name} 正在运行" : $"账号 {selected.Name} 已停止";
+        RuntimeStatusText = selected.IsRunning ? $"Account {selected.Name} is running" : $"Account {selected.Name} is stopped";
         LoadLogsForSelectedAccount();
     }
 
@@ -118,19 +118,19 @@ public partial class MainViewModel : ObservableObject
 
         if (string.IsNullOrWhiteSpace(EditableAccount.ApiKey))
         {
-            await ShowInfoAsync(xamlRoot, "无法启动", "请先填写 API_KEY。");
+            await ShowInfoAsync(xamlRoot, "Cannot start", "API_KEY is required.");
             return;
         }
 
         if (string.IsNullOrWhiteSpace(EditableAccount.CookieString))
         {
-            await ShowInfoAsync(xamlRoot, "无法启动", "请先完成登录或填写 Cookie。");
+            await ShowInfoAsync(xamlRoot, "Cannot start", "Cookies are required. Complete login first.");
             return;
         }
 
         try
         {
-            RuntimeStatusText = $"正在启动账号 {account.Name} ...";
+            RuntimeStatusText = $"Starting account {account.Name} ...";
             await SaveSelectedAccountAsync();
             await _workerHost.StartAsync(account);
 
@@ -140,16 +140,16 @@ public partial class MainViewModel : ObservableObject
                 LoadLogsForSelectedAccount();
                 await ShowInfoAsync(
                     xamlRoot,
-                    "启动失败",
+                    "Start failed",
                     string.IsNullOrWhiteSpace(LogText)
-                        ? "进程启动后立即退出，请检查账号配置、API Key、Cookie 和日志内容。"
-                        : $"进程启动后立即退出。最近日志：\n\n{TrimText(LogText)}");
+                        ? "The worker process exited immediately. Check account config, API key, cookies, and logs."
+                        : $"The worker process exited immediately. Recent logs:\n\n{TrimText(LogText)}");
             }
         }
         catch (Exception ex)
         {
-            RuntimeStatusText = $"账号 {account.Name} 启动失败";
-            await ShowInfoAsync(xamlRoot, "启动失败", ex.Message);
+            RuntimeStatusText = $"Account {account.Name} failed to start";
+            await ShowInfoAsync(xamlRoot, "Start failed", ex.Message);
         }
     }
 
@@ -198,20 +198,20 @@ public partial class MainViewModel : ObservableObject
     {
         var info = await _releaseUpdateService.CheckForUpdatesAsync();
         var content = info.HasUpdate
-            ? $"发现新版本：{info.LatestVersion}\n发布时间：{info.PublishedAt:yyyy-MM-dd HH:mm}\n\n{TrimText(info.ReleaseNotes)}"
-            : $"当前已是最新版本：{info.CurrentVersion}";
+            ? $"New version available: {info.LatestVersion}\nPublished: {info.PublishedAt:yyyy-MM-dd HH:mm}\n\n{TrimText(info.ReleaseNotes)}"
+            : $"You are already on the latest version: {info.CurrentVersion}";
 
         var dialog = new ContentDialog
         {
-            Title = "检查更新",
+            Title = "Check updates",
             Content = new TextBlock
             {
                 Text = content,
                 TextWrapping = TextWrapping.WrapWholeWords,
                 MaxWidth = 560
             },
-            PrimaryButtonText = info.HasUpdate && !string.IsNullOrWhiteSpace(info.DownloadUrl) ? "打开下载页面" : "确定",
-            CloseButtonText = "关闭",
+            PrimaryButtonText = info.HasUpdate && !string.IsNullOrWhiteSpace(info.DownloadUrl) ? "Open download page" : "OK",
+            CloseButtonText = "Close",
             XamlRoot = xamlRoot
         };
         var result = await dialog.ShowAsync();
@@ -306,8 +306,8 @@ public partial class MainViewModel : ObservableObject
         {
             EditableAccount.IsRunning = state.IsRunning;
             RuntimeStatusText = state.IsRunning
-                ? $"账号 {state.AccountName} 正在运行"
-                : $"账号 {state.AccountName} 已停止";
+                ? $"Account {state.AccountName} is running"
+                : $"Account {state.AccountName} is stopped";
         }
     }
 
@@ -319,8 +319,8 @@ public partial class MainViewModel : ObservableObject
             {
                 await ShowInfoAsync(
                     xamlRoot,
-                    "登录失败",
-                    string.IsNullOrWhiteSpace(result.ErrorMessage) ? "未能自动获取 Cookie。" : result.ErrorMessage);
+                    "Login failed",
+                    string.IsNullOrWhiteSpace(result.ErrorMessage) ? "Automatic cookie capture failed." : result.ErrorMessage);
             }
             return;
         }
@@ -346,7 +346,7 @@ public partial class MainViewModel : ObservableObject
         }
 
         var logPath = System.IO.Path.Combine(account.LogsDir, "current.log");
-        LogCaptionText = $"当前账号：{account.Name} | {logPath}";
+        LogCaptionText = $"Current account: {account.Name} | {logPath}";
         if (!System.IO.File.Exists(logPath))
         {
             LogText = string.Empty;
@@ -362,7 +362,7 @@ public partial class MainViewModel : ObservableObject
         const int maxLength = 480;
         if (string.IsNullOrWhiteSpace(text))
         {
-            return "暂无可用内容。";
+            return "No details available.";
         }
 
         var normalized = text.Trim();
@@ -380,7 +380,7 @@ public partial class MainViewModel : ObservableObject
                 TextWrapping = TextWrapping.WrapWholeWords,
                 MaxWidth = 560
             },
-            CloseButtonText = "关闭",
+            CloseButtonText = "Close",
             XamlRoot = xamlRoot
         };
 
