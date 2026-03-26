@@ -193,14 +193,6 @@ installer\inno\Output\XianyuAutoAgent_1.0_Setup.exe
 - [build_desktop.ps1](./build_desktop.ps1)
 - [installer/inno/setup.iss](./installer/inno/setup.iss)
 
-### UI 看不清、发白、界面偏卡
-
-当前桌面端已切换为：
-
-- 高对比浅色实体卡片
-- 低特效样式
-- 关闭重玻璃 / Mica 背景链路
-
 ### 登录失败
 
 可依次尝试：
